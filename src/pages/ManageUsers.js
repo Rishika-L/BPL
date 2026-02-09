@@ -5,7 +5,7 @@ import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
 import UserFilters from "../component/UserFilters";
 import CommonTable from "../component/CommonTable";
-import UserFilters from "../component/UserFilters";
+// import UserFilters from "../component/UserFilters";
 
 const ManageUsers = () => {
   const navigate = useNavigate();
