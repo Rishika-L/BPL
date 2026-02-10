@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
 import LeftProductsTable from "../component/LeftProductsTable";
+import { useNavigate } from "react-router-dom";
 
 const FG_CODES = [
   "MECGGENX3",
@@ -13,7 +14,27 @@ const FG_CODES = [
 const ManageProducts = () => {
   const [activeMainTab, setActiveMainTab] = useState("productMaster");
   const [activeSubTab, setActiveSubTab] = useState("products");
+
   const [selectedFGCodes, setSelectedFGCodes] = useState([]);
+
+  const [showForm, setShowForm] = useState(false);
+
+  const navigate = useNavigate();
+
+const [users, setUsers] = useState([]);
+  const [products, setProducts] = useState([
+    {
+      fgCode: "MECGGENX3",
+      productName: "Product A",
+      type: "Inverter",
+    },
+  ]);
+
+
+  const handleAddUser = (newUser) => {
+   
+    setUsers([...users, newUser]);
+  };
 
   const toggleFGCode = (code) => {
     setSelectedFGCodes((prev) =>
@@ -23,12 +44,10 @@ const ManageProducts = () => {
     );
   };
 
-
- 
-  
   return (
     <>
       <Navbar />
+
       <div className="flex">
         <Sidebar />
 
@@ -63,12 +82,12 @@ const ManageProducts = () => {
           {/* ================= CONTENT ================= */}
           <div className="flex gap-6">
             {/* ========== LEFT : FG CODE LIST ========== */}
-            <div className="w-72   mt-8 rounded">
-              <div className=" px-4 py-2 font-medium text-[#272757]">
+            <div className="w-72 mt-8 rounded bg-white">
+              <div className="px-4 py-2 font-medium text-[#272757]">
                 FG Code List
               </div>
 
-              <table className="w-full mt-6 text-sm">
+              <table className="w-full mt-2 text-sm">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="w-10"></th>
@@ -98,7 +117,7 @@ const ManageProducts = () => {
                           />
                         </td>
                         <td className="px-2 py-2">{code}</td>
-                        <td className="px-2 py-2 text-[#272757] text-xs">
+                        <td className="px-2 py-2 text-xs text-[#272757]">
                         
                         </td>
                       </tr>
@@ -109,7 +128,7 @@ const ManageProducts = () => {
             </div>
 
             {/* ========== RIGHT : PRODUCTS AREA ========== */}
-            <div className="flex-1 bg-white rounded pt-16">
+            <div className="flex-1 bg-white rounded pt-16 px-6 mt-8">
               {/* SUB TABS + BUTTONS */}
               <div className="flex justify-between items-center mb-4">
                 {/* Sub Tabs */}
@@ -129,7 +148,7 @@ const ManageProducts = () => {
                   ))}
                 </div>
 
-                {/* Top Right Buttons */}
+                {/* Buttons */}
                 <div className="flex gap-3">
                   <button className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm">
                     Download Excel
@@ -137,23 +156,84 @@ const ManageProducts = () => {
                   <button className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm">
                     Upload
                   </button>
-                  <button className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm">
-                    Add Product
-                  </button>
+                  <button
+  onClick={() => navigate("/add-product")}
+  className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm"
+>
+  Add Product
+</button>
+
                 </div>
               </div>
 
-             <div className="flex gap-6 mt-6">
-  <div className="flex-1">
-    <LeftProductsTable />
-  </div>
-</div>
+              {/* ========== ADD PRODUCT FORM ========== */}
+              {showForm && (
+                <div className="bg-gray-50 p-4 rounded mb-6 border">
+                  <h3 className="font-medium text-[#272757] mb-4">
+                    Add Product
+                  </h3>
 
-            </div>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+
+                      const newProduct = {
+                        fgCode: e.target.fgCode.value,
+                        productName: e.target.productName.value,
+                        type: e.target.type.value,
+                      };
+
+                      setProducts((prev) => [...prev, newProduct]);
+                      setShowForm(false);
+                    }}
+                    className="grid grid-cols-3 gap-4"
+                  >
+                    <input
+                      name="fgCode"
+                      placeholder="FG Code"
+                      className="border p-2 rounded"
+                      required
+                    />
+
+                    <input
+                      name="productName"
+                      placeholder="Product Name"
+                      className="border p-2 rounded"
+                      required
+                    />
+
+                    <input
+                      name="type"
+                      placeholder="Type"
+                      className="border p-2 rounded"
+                    />
+
+                    <div className="col-span-3 flex gap-3 mt-2">
+                      <button
+                        type="submit"
+                        className="bg-[#272757] text-white px-4 py-2 rounded text-sm"
+                      >
+                        Save
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setShowForm(false)}
+                        className="border px-4 py-2 rounded text-sm"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* ========== TABLE ========== */}
+              <LeftProductsTable data={products} />
             </div>
           </div>
         </div>
-      
+      </div>
     </>
   );
 };

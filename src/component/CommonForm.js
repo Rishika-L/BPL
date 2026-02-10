@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import uploadIcon from "../images/Union.png";
 
 const CommonForm = ({
+  
   title,
   fields = [],
   initialData = {},

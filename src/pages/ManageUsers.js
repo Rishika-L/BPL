@@ -18,6 +18,7 @@ const ManageUsers = () => {
   const [role, setRole] = useState("ALL");
   const [status, setStatus] = useState("ALL");
 
+  
   // LOAD USERS
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("users")) || [];
