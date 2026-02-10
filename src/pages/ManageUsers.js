@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 
 import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
-import UserFilters from "../component/UserFilters";
+
 import CommonTable from "../component/CommonTable";
-// import UserFilters from "../component/UserFilters";
+import TopBarActions from "../component/TopBarActions";
 
 const ManageUsers = () => {
   const navigate = useNavigate();
@@ -18,13 +18,13 @@ const ManageUsers = () => {
   const [role, setRole] = useState("ALL");
   const [status, setStatus] = useState("ALL");
 
-  // 🔹 LOAD USERS
+  // LOAD USERS
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("users")) || [];
     setUsers(stored);
   }, []);
 
-  // 🔹 FILTER LOGIC
+  //  FILTER LOGIC
   const filteredUsers = users.filter((u) => {
     return (
       (search === "" ||
@@ -37,7 +37,7 @@ const ManageUsers = () => {
     );
   });
 
-  // 🔹 DELETE
+  //  DELETE
   const handleDelete = (id) => {
     if (!window.confirm("Delete this user?")) return;
     const updated = users.filter((u) => u.id !== id);
@@ -45,7 +45,7 @@ const ManageUsers = () => {
     localStorage.setItem("users", JSON.stringify(updated));
   };
 
-  // 🔹 USER TABLE COLUMNS
+  //  USER TABLE COLUMNS
   const userColumns = [
     {
       key: "imagePreview",
@@ -73,16 +73,16 @@ const ManageUsers = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* 🔹 NAVBAR */}
+      {/*  NAVBAR */}
       <Navbar />
 
       <div className="flex">
-        {/* 🔹 SIDEBAR */}
+        {/*  SIDEBAR */}
         <Sidebar />
 
-        {/* 🔹 CONTENT */}
+        {/*  CONTENT */}
         <div className="flex-1 p-6">
-          {/* 🔹 PAGE TITLE */}
+          {/*  PAGE TITLE */}
           <h2 className="text-xl font-semibold text-[#272757] mb-4">
             Manage Users
           </h2>
@@ -90,12 +90,12 @@ const ManageUsers = () => {
         
         <div className="flex-1 p-6">
 
-          {/* ⭐ MANAGE USERS TITLE (USERS TAB KU MELA) */}
+          {/*  MANAGE USERS TITLE (USERS TAB KU MELA) */}
           <h2 className="text-xl font-semibold text-[#272757] mb-3">
             Manage Users
           </h2>
 
-          {/* 🔹 USERS | USER GROUPS */}
+          {/*  USERS | USER GROUPS */}
           <div className="flex gap-6 border-b mb-6">
             <button
               onClick={() => setActiveTab("users")}
@@ -116,11 +116,12 @@ const ManageUsers = () => {
                   : "text-gray-500"
               }`}
             >
-              User Groups
+             Groups
             </button>
           </div>
-<UserFilters
-  activeTab={activeTab}
+         <TopBarActions
+  title="Manage Users"
+  assistiveText="Filter users by search, gender, role, status"
   search={search}
   setSearch={setSearch}
   gender={gender}
@@ -130,9 +131,15 @@ const ManageUsers = () => {
   status={status}
   setStatus={setStatus}
   onCreate={() => navigate("/users/new")}
+  onClear={() => {
+    setSearch("");
+    setGender("ALL");
+    setRole("ALL");
+    setStatus("ALL");
+  }}
 />
 
-          {/* 🔹 TABLE (MOVED DOWN) */}
+          {/*  TABLE  */}
           {activeTab === "users" && (
             <div className="mt-6">
               <CommonTable
@@ -146,7 +153,7 @@ const ManageUsers = () => {
 
           {activeTab === "groups" && (
             <div className="mt-10 text-gray-500 text-sm">
-              User Groups table later connect pannalaam
+               Groups table
             </div>
           )}
         </div>

@@ -156,6 +156,31 @@ const CommonForm = ({
               </div>
             )}
 
+            {field.type === "file" && (
+  <div className="flex flex-col gap-2">
+    {formData.imagePreview && (
+      <img
+        src={formData.imagePreview}
+        alt="preview"
+        className="w-24 h-24 object-cover rounded-full"
+      />
+    )}
+    <input
+      type="file"
+      onChange={(e) => {
+        const file = e.target.files[0];
+        setFormData((prev) => ({
+          ...prev,
+          image: file,
+          imagePreview: file ? URL.createObjectURL(file) : prev.imagePreview,
+        }));
+      }}
+      className="border rounded p-2"
+    />
+  </div>
+)}
+
+
             {/* INPUT */}
             {!["select", "date", "toggle", "file"].includes(field.type) && (
               <input

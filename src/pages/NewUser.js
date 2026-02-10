@@ -6,7 +6,7 @@ import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
 import CommonForm from "../component/CommonForm";
 
-/* 🔹 FORM FIELDS CONFIG */
+
 const fields = [
   { name: "userId", label: "User ID", required: true, fullWidth: true },
 
@@ -45,7 +45,7 @@ const fields = [
 const NewUser = () => {
   const navigate = useNavigate();
 
-  /* 🔹 SUBMIT HANDLER */
+ 
   const handleSubmit = (data) => {
     const existingUsers =
       JSON.parse(localStorage.getItem("users")) || [];
@@ -54,7 +54,6 @@ const NewUser = () => {
       id: Date.now(),
       ...data,
 
-      // 🔹 image preview for table
       imagePreview: data.image
         ? URL.createObjectURL(data.image)
         : "",
@@ -78,7 +77,7 @@ const NewUser = () => {
         <Sidebar />
 
         <div className="flex-1 px-16 py-20">
-          {/* 🔹 HEADER */}
+          {/* HEADER */}
           <div className="mb-6">
             <div className="flex items-center gap-4">
               <button
@@ -101,7 +100,7 @@ const NewUser = () => {
             <div className="mt-3 border-b border-gray-300" />
           </div>
 
-          {/* 🔹 COMMON FORM */}
+          {/*  COMMON FORM */}
           <CommonForm
             fields={fields}
             initialData={{ status: true }}

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // images
 import gridImg from "../images/grid.png";
@@ -10,17 +11,27 @@ import tempImg from "../images/temp.png";
 import checklistImg from "../images/checklist.png";
 
 const menuItems = [
-  { id: "grid", img: gridImg, alt: "Dashboard", large: true },
+  { id: "grid", img: gridImg, alt: "Dashboard", large: true  },
   { id: "monitor", img: monitorImg, alt: "Monitor" },
   { id: "box", img: boxImg, alt: "Box" },
   { id: "notebook", img: notebookImg, alt: "Notebook" },
-  { id: "users", img: usersImg, alt: "Users" },
+  {
+    id: "users",
+    img: usersImg,
+    alt: "Users"
+  },
   { id: "temp", img: tempImg, alt: "Temperature" },
   { id: "checklist", img: checklistImg, alt: "Checklist" },
 ];
 
 const Sidebar = () => {
   const [active, setActive] = useState("users");
+  const navigate = useNavigate();
+
+  const handleClick = (item) => {
+    setActive(item.id);
+    navigate(item.path);
+  };
 
   return (
     <div className="w-16 bg-white border-r mt-14 h-[calc(100vh-56px)] sticky top-14 flex flex-col items-center space-y-6 py-6">
@@ -31,7 +42,7 @@ const Sidebar = () => {
         return (
           <button
             key={item.id}
-            onClick={() => setActive(item.id)}
+            onClick={() => handleClick(item)}
             className={`p-2 rounded transition-all duration-200
               ${isActive ? "bg-[#272757]" : "hover:bg-gray-100"}
             `}

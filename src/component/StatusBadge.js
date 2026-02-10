@@ -1,4 +1,3 @@
-// src/components/StatusBadge.jsx
 const StatusBadge = ({ status }) => {
   return (
     <div className="flex items-center gap-2 justify-center">
