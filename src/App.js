@@ -5,6 +5,7 @@ import Login from "./component/Login";
 import ManageUsers from "./pages/ManageUsers";
 import NewUser from "./pages/NewUser";
 import UpdateUser from "./pages/UpdateUser";
+import ManageProducts from "./pages/ManageProducts";
 
 function App() {
   const [users, setUsers] = useState(() => {
@@ -47,6 +48,9 @@ function App() {
           element={<UpdateUser users={users} setUsers={setUsers} />}
         />
 
+
+          <Route path="/manage-users" element={<ManageUsers />} />
+<Route path="/manage-products" element={<ManageProducts />} />
         
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

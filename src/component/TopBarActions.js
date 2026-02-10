@@ -79,7 +79,7 @@ const TopBarActions = ({
         {/* CLEAR BUTTON */}
         <button
           onClick={onClear}
-          className="bg-blue-150 text-gray-800 px-4 py-2   transition"
+          className="bg-gray-300 text-gray-800 px-4 py-2  hover:bg-gray-400 transition"
         >
           Clear
         </button>

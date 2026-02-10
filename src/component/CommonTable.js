@@ -2,27 +2,29 @@ import { useState } from "react";
 import StatusBadge from "./StatusBadge";
 import ActionMenu from "./ActionMenu";
 
-const CommonTable = ({ data, onEdit, onDelete, rowsPerPage = 10 }) => {
+const CommonTable = ({
+  data = [],
+  onEdit,
+  onDelete,
+  rowsPerPage = 10,
+  showCheckbox = true,
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.ceil(data.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const currentData = data.slice(startIndex, startIndex + rowsPerPage);
 
-  const handlePrev = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  const handleNext = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  };
-
   return (
     <div className="bg-white rounded shadow overflow-x-auto">
       <table className="w-full text-sm text-center">
         <thead className="bg-gray-200">
           <tr>
-            <th className="p-3"><input type="checkbox" /></th>
+            {showCheckbox && (
+              <th className="p-3">
+                <input type="checkbox" />
+              </th>
+            )}
             <th>Profile Image</th>
             <th>User ID</th>
             <th>User Name</th>
@@ -40,7 +42,11 @@ const CommonTable = ({ data, onEdit, onDelete, rowsPerPage = 10 }) => {
         <tbody>
           {currentData.map((u) => (
             <tr key={u.id} className="border-t">
-              <td><input type="checkbox" /></td>
+              {showCheckbox && (
+                <td>
+                  <input type="checkbox" />
+                </td>
+              )}
 
               <td>
                 <img
@@ -57,7 +63,11 @@ const CommonTable = ({ data, onEdit, onDelete, rowsPerPage = 10 }) => {
               <td>{u.email || "-"}</td>
               <td>{u.group || "-"}</td>
               <td>{u.role || "Not Assigned"}</td>
-              <td>{u.createdAt ? new Date(u.createdAt).toLocaleDateString("en-GB") : "-"}</td>
+              <td>
+                {u.createdAt
+                  ? new Date(u.createdAt).toLocaleDateString("en-GB")
+                  : "-"}
+              </td>
               <td>
                 <StatusBadge status={u.status} />
               </td>
@@ -76,9 +86,9 @@ const CommonTable = ({ data, onEdit, onDelete, rowsPerPage = 10 }) => {
       {data.length > rowsPerPage && (
         <div className="flex justify-between items-center p-4 bg-gray-50">
           <button
-            onClick={handlePrev}
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
             disabled={currentPage === 1}
-            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50 hover:bg-gray-300"
+            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
           >
             Previous
           </button>
@@ -88,9 +98,11 @@ const CommonTable = ({ data, onEdit, onDelete, rowsPerPage = 10 }) => {
           </span>
 
           <button
-            onClick={handleNext}
+            onClick={() =>
+              setCurrentPage((p) => Math.min(p + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
-            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50 hover:bg-gray-300"
+            className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
           >
             Next
           </button>

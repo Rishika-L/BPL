@@ -101,7 +101,7 @@ const ManageUsers = () => {
               onClick={() => setActiveTab("users")}
               className={`pb-2 ${
                 activeTab === "users"
-                  ? "border-b-2 border-[#272757] text-[#272757] font-medium"
+                  ? "border-b-2 border-[#272757]  text-[#272757] font-medium"
                   : "text-gray-500"
               }`}
             >
