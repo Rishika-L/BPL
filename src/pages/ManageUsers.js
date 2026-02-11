@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
-
 import CommonTable from "../component/CommonTable";
 import TopBarActions from "../component/TopBarActions";
 
@@ -18,14 +17,13 @@ const ManageUsers = () => {
   const [role, setRole] = useState("ALL");
   const [status, setStatus] = useState("ALL");
 
-  
   // LOAD USERS
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("users")) || [];
     setUsers(stored);
   }, []);
 
-  //  FILTER LOGIC
+  // FILTER LOGIC
   const filteredUsers = users.filter((u) => {
     return (
       (search === "" ||
@@ -38,7 +36,7 @@ const ManageUsers = () => {
     );
   });
 
-  //  DELETE
+  // DELETE
   const handleDelete = (id) => {
     if (!window.confirm("Delete this user?")) return;
     const updated = users.filter((u) => u.id !== id);
@@ -46,63 +44,44 @@ const ManageUsers = () => {
     localStorage.setItem("users", JSON.stringify(updated));
   };
 
-  //  USER TABLE COLUMNS
+  // EDIT
+  const handleEdit = (user) => {
+    navigate("/users/new", { state: { user } });
+  };
+
+  // USER TABLE COLUMNS
   const userColumns = [
-    {
-      key: "imagePreview",
-      label: "Profile",
-      render: (row) =>
-        row.imagePreview ? (
-          <img
-            src={row.imagePreview}
-            alt="profile"
-            className="w-9 h-9 rounded-full object-cover mx-auto"
-          />
-        ) : (
-          "-"
-        ),
-    },
+    { key: "imagePreview", label: "Profile Image", type: "image" },
     { key: "userId", label: "User ID" },
     { key: "firstName", label: "User Name" },
     { key: "gender", label: "Gender" },
-    { key: "phone", label: "Phone" },
+    { key: "phone", label: "Phone No." },
     { key: "email", label: "Email" },
     { key: "group", label: "Group Name" },
     { key: "role", label: "Role Name" },
-    { key: "status", label: "Status" },
+    { key: "createdAt", label: "Created On", type: "date" },
+    { key: "status", label: "Status", type: "status" },
   ];
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/*  NAVBAR */}
       <Navbar />
 
       <div className="flex">
-        {/*  SIDEBAR */}
         <Sidebar />
 
-        {/*  CONTENT */}
-        <div className="flex-1 p-6">
-          {/*  PAGE TITLE */}
-          <h2 className="text-xl font-semibold text-[#272757] mb-4">
+        <div className="flex-1 p-4">
+          <h2 className="text-xl font-semibold text-[#272757] mt-20 ">
             Manage Users
           </h2>
 
-        
-        <div className="flex-1 p-6">
-
-          {/*  MANAGE USERS TITLE (USERS TAB KU MELA) */}
-          <h2 className="text-xl font-semibold text-[#272757] mb-3">
-            Manage Users
-          </h2>
-
-          {/*  USERS | USER GROUPS */}
-          <div className="flex gap-6 border-b mb-6">
+          {/* USERS | GROUPS TAB */}
+          <div className="flex gap-6 border-b mt-6">
             <button
               onClick={() => setActiveTab("users")}
               className={`pb-2 ${
                 activeTab === "users"
-                  ? "border-b-2 border-[#272757]  text-[#272757] font-medium"
+                  ? "border-b-2 border-[#272757] text-[#272757] font-medium"
                   : "text-gray-500"
               }`}
             >
@@ -117,36 +96,38 @@ const ManageUsers = () => {
                   : "text-gray-500"
               }`}
             >
-             Groups
+              Groups
             </button>
           </div>
-         <TopBarActions
-  title="Manage Users"
-  assistiveText="Filter users by search, gender, role, status"
-  search={search}
-  setSearch={setSearch}
-  gender={gender}
-  setGender={setGender}
-  role={role}
-  setRole={setRole}
-  status={status}
-  setStatus={setStatus}
-  onCreate={() => navigate("/users/new")}
-  onClear={() => {
-    setSearch("");
-    setGender("ALL");
-    setRole("ALL");
-    setStatus("ALL");
-  }}
-/>
 
-          {/*  TABLE  */}
+          {/* FILTER BAR */}
+          <TopBarActions 
+            title="Manage Users"
+            assistiveText="Filter users by search, gender, role, status"
+            search={search}
+            setSearch={setSearch}
+            gender={gender}
+            setGender={setGender}
+            role={role}
+            setRole={setRole}
+            status={status}
+            setStatus={setStatus}
+            onCreate={() => navigate("/users/new")}
+            onClear={() => {
+              setSearch("");
+              setGender("ALL");
+              setRole("ALL");
+              setStatus("ALL");
+            }}
+          />
+
+          {/* TABLE */}
           {activeTab === "users" && (
             <div className="mt-6">
               <CommonTable
+                data={filteredUsers} 
                 columns={userColumns}
-                data={filteredUsers}
-                onEdit={(row) => navigate(`/users/update/${row.id}`)}
+                onEdit={handleEdit}
                 onDelete={handleDelete}
               />
             </div>
@@ -154,12 +135,12 @@ const ManageUsers = () => {
 
           {activeTab === "groups" && (
             <div className="mt-10 text-gray-500 text-sm">
-               Groups table
+              Groups table
             </div>
           )}
         </div>
       </div>
-    </div></div>
+    </div>
   );
 };
 

@@ -63,7 +63,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const handleNavigation = (item) => {
-    if (!item.path) return; // safety
+    if (!item.path) return; 
     setActive(item.id);
     navigate(item.path);
   };

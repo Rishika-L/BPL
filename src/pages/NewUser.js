@@ -107,6 +107,7 @@ const NewUser = () => {
             onSubmit={handleSubmit}
             onCancel={() => navigate("/users")}
           />
+          
         </div>
       </div>
     </div>

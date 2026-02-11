@@ -4,10 +4,12 @@ import ActionMenu from "./ActionMenu";
 
 const CommonTable = ({
   data = [],
+  columns = [],
   onEdit,
   onDelete,
   rowsPerPage = 10,
   showCheckbox = true,
+  showActions = true,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -25,58 +27,56 @@ const CommonTable = ({
                 <input type="checkbox" />
               </th>
             )}
-            <th>Profile Image</th>
-            <th>User ID</th>
-            <th>User Name</th>
-            <th>Gender</th>
-            <th>Phone No.</th>
-            <th>Email</th>
-            <th>Group Name</th>
-            <th>Role Name</th>
-            <th>Created on</th>
-            <th>Status</th>
-            <th>Action</th>
+
+            {columns.map((col) => (
+              <th key={col.key} className="p-3">
+                {col.label}
+              </th>
+            ))}
+
+            {showActions && <th className="p-3">Action</th>}
           </tr>
         </thead>
 
         <tbody>
-          {currentData.map((u) => (
-            <tr key={u.id} className="border-t">
+          {currentData.map((row) => (
+            <tr key={row.id} className="border-t">
               {showCheckbox && (
                 <td>
                   <input type="checkbox" />
                 </td>
               )}
 
-              <td>
-                <img
-                  src={u.imagePreview || "/default-avatar.png"}
-                  alt="profile"
-                  className="w-8 h-8 rounded-full mx-auto"
-                />
-              </td>
+              {columns.map((col) => (
+                <td key={col.key} className="p-2">
+                  {col.render ? (
+                    col.render(row)
+                  ) : col.type === "image" ? (
+                    <img
+                      src={row[col.key] || "/default-avatar.png"}
+                      alt="img"
+                      className="w-8 h-8 rounded-full mx-auto"
+                    />
+                  ) : col.type === "date" ? (
+                    row[col.key]
+                      ? new Date(row[col.key]).toLocaleDateString("en-GB")
+                      : "-"
+                  ) : col.type === "status" ? (
+                    <StatusBadge status={row[col.key]} />
+                  ) : (
+                    row[col.key] || "-"
+                  )}
+                </td>
+              ))}
 
-              <td>{u.userId}</td>
-              <td className="text-blue-600 font-medium">{u.firstName}</td>
-              <td>{u.gender || "-"}</td>
-              <td>{u.phone || "-"}</td>
-              <td>{u.email || "-"}</td>
-              <td>{u.group || "-"}</td>
-              <td>{u.role || "Not Assigned"}</td>
-              <td>
-                {u.createdAt
-                  ? new Date(u.createdAt).toLocaleDateString("en-GB")
-                  : "-"}
-              </td>
-              <td>
-                <StatusBadge status={u.status} />
-              </td>
-              <td>
-                <ActionMenu
-                  onEdit={() => onEdit(u)}
-                  onDelete={() => onDelete(u.id)}
-                />
-              </td>
+              {showActions && (
+                <td>
+                  <ActionMenu
+                    onEdit={() => onEdit(row)}
+                    onDelete={() => onDelete(row.id)}
+                  />
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

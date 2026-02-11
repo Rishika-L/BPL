@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import login from "../images/login.png";
 import loginlogo from "../images/login logo.png";
 
+localStorage.setItem("isLoggedIn", "true");
+
+
 const Login = () => {
   const navigate = useNavigate();
 
