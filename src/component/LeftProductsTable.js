@@ -86,7 +86,7 @@ const LeftProductsTable = ({
                     </tr>
                   )}
 
-                  {/* 🔥 YOUR ORIGINAL ROW (UNCHANGED) */}
+                  {/*  YOUR ORIGINAL ROW (UNCHANGED) */}
                   <tr
                     draggable={isOrganizing}
                     onDragStart={() => handleDragStart(index)}
