@@ -20,19 +20,19 @@ const ManageProducts = () => {
   const [activeMainTab, setActiveMainTab] = useState("productMaster");
   const [activeSubTab, setActiveSubTab] = useState("products");
   const [selectedFGCodes, setSelectedFGCodes] = useState([]);
-  const [showFormActions, setShowFormActions] = useState(false);
+  const [isOrganizing, setIsOrganizing] = useState(false);
 
-  //  Load from localStorage first
+  // Load products
   const [products, setProducts] = useState(() => {
     const saved = localStorage.getItem("products");
     return saved ? JSON.parse(saved) : [];
   });
-  // Save to localStorage whenever products change
+
   useEffect(() => {
     localStorage.setItem("products", JSON.stringify(products));
   }, [products]);
 
-  //  When coming from AddProduct page
+  // Coming from AddProduct page
   useEffect(() => {
     if (location.state?.newProduct) {
       const newProduct = {
@@ -40,9 +40,7 @@ const ManageProducts = () => {
         id: Date.now(),
         addedOn: new Date().toLocaleDateString("en-GB"),
       };
-
       setProducts((prev) => [...prev, newProduct]);
-
       navigate(".", { replace: true });
     }
 
@@ -59,13 +57,13 @@ const ManageProducts = () => {
     }
   }, [location.state, navigate]);
 
-  //  Delete
+  // Delete
   const handleDelete = (index) => {
     const updated = products.filter((_, i) => i !== index);
     setProducts(updated);
   };
 
-  //  Edit
+  // Edit
   const handleEdit = (index) => {
     navigate("/add-product", {
       state: { editData: products[index], editIndex: index },
@@ -81,6 +79,23 @@ const ManageProducts = () => {
     );
   };
 
+  // Save Organize
+  const handleSave = () => {
+    setIsOrganizing(false);
+    alert("Order Saved Successfully");
+  };
+
+  // Reset Organize
+  const handleReset = () => {
+    const saved = localStorage.getItem("products");
+    setProducts(saved ? JSON.parse(saved) : []);
+    setIsOrganizing(false);
+  };
+
+
+
+
+  
   return (
     <>
       <Navbar />
@@ -125,30 +140,69 @@ const ManageProducts = () => {
               selectedItems={selectedFGCodes}
               onSelect={toggleFGCode}
               width="w-72"
+              className="overflow-y-auto"
             />
 
             {/* RIGHT SIDE */}
             <div className="flex-1 bg-white rounded pt-16 px-6 mt-8">
               <div className="flex justify-between items-center mb-4">
-                {/* SUB TABS */}
-                <div className="flex gap-6 border-b">
-                  {["products", "fgInfo", "organize"].map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveSubTab(tab)}
-                      className={`pb-2 capitalize ${
-                        activeSubTab === tab
-                          ? "border-b-2 border-black text-[#272757] font-medium"
-                          : "text-gray-500"
-                      }`}
-                    >
-                      {tab === "fgInfo" ? "FG Info" : tab}
-                    </button>
-                  ))}
-                </div>
-                
 
-                {/* ACTION BUTTONS */}
+                {/* SUB TABS */}
+                <div className="flex gap-6 border-b items-center">
+
+                  <button
+                    onClick={() => setActiveSubTab("products")}
+                    className={`pb-2 ${
+                      activeSubTab === "products"
+                        ? "border-b-2 border-black text-[#272757] font-medium"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    Products
+                  </button>
+
+                  <button
+                    onClick={() => setActiveSubTab("fgInfo")}
+                    className={`pb-2 ${
+                      activeSubTab === "fgInfo"
+                        ? "border-b-2 border-black text-[#272757] font-medium"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    FG Info
+                  </button>
+
+                  <button
+                    onClick={() => setIsOrganizing(!isOrganizing)}
+                    className={`pb-2 ${
+                      isOrganizing
+                        ? "border-b-2 border-black text-[#272757] font-medium"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    Organize
+                  </button>
+
+                  {isOrganizing && (
+                    <div className="flex gap-3 ml-4">
+                      <button
+                        onClick={handleSave}
+                        className="bg-green-600 text-white px-4 py-1 rounded text-sm"
+                      >
+                        Save
+                      </button>
+
+                      <button
+                        onClick={handleReset}
+                        className="bg-red-500 text-white px-4 py-1 rounded text-sm"
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* RIGHT BUTTONS */}
                 <div className="flex gap-3">
                   <button className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm">
                     Download Excel
@@ -168,11 +222,12 @@ const ManageProducts = () => {
               </div>
 
               {/* PRODUCTS TABLE */}
-  <LeftProductsTable
+             <LeftProductsTable
   data={products}
-
+  setData={setProducts}   // 👈 THIS IS IMPORTANT
   onEdit={handleEdit}
   onDelete={handleDelete}
+  isOrganizing={isOrganizing}
 />
 
             </div>

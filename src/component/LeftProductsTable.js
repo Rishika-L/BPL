@@ -1,115 +1,185 @@
-import React from "react";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { Move } from "lucide-react"; // icon from lucide-react
+import React, { useState } from "react";
+import { GripHorizontal } from "lucide-react";
 
-const LeftProductsTable = ({ data = [], setProducts, onEdit, onDelete }) => {
-  // Handle drag end
-  const handleDragEnd = (result) => {
-    if (!result.destination) return;
+const LeftProductsTable = ({
+  data = [],
+  setData,
+  onEdit,
+  onDelete,
+  isOrganizing = false,
+}) => {
+  const [openMenuIndex, setOpenMenuIndex] = useState(null);
+  const [dragIndex, setDragIndex] = useState(null);
 
-    const items = Array.from(data);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
+  const toggleMenu = (index) => {
+    setOpenMenuIndex(openMenuIndex === index ? null : index);
+  };
 
-    setProducts(items);
+  const handleDragStart = (index) => {
+    setDragIndex(index);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (dropIndex) => {
+    if (dragIndex === null || dragIndex === dropIndex) return;
+
+    const updated = [...data];
+    const draggedItem = updated[dragIndex];
+
+    updated.splice(dragIndex, 1);
+    updated.splice(dropIndex, 0, draggedItem);
+
+    setData(updated);
+    setDragIndex(null);
   };
 
   return (
-    <div className="overflow-x-auto">
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="products">
-          {(provided) => (
-            <table
-              className="w-full border text-sm text-center"
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-            >
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="border p-2">S.No</th>
-                  <th className="border p-2">Drag</th>
-                  <th className="border p-2">Product Name</th>
-                  <th className="border p-2">Code</th>
-                  <th className="border p-2">FG Code</th>
-                  <th className="border p-2">Product Type</th>
-                  <th className="border p-2">Traceability</th>
-                  <th className="border p-2">Added On</th>
-                  <th className="border p-2">Status</th>
-                  <th className="border p-2">Action</th>
-                </tr>
-              </thead>
+    <div className="overflow-x-auto bg-white rounded-lg shadow-md">
+      <table className="w-full border text-sm text-center">
+        <thead className="bg-gray-100">
+          <tr>
+            {isOrganizing && (
+              <th className="border p-2 w-12">Drag</th>
+            )}
+            <th className="border p-2">S.No</th>
+            <th className="border p-2">Product Name</th>
+            <th className="border p-2">Code</th>
+            <th className="border p-2">FG Code</th>
+            <th className="border p-2">Product Type</th>
+            <th className="border p-2">Traceability</th>
+            <th className="border p-2">Added On</th>
+            <th className="border p-2">Status</th>
+            <th className="border p-2">Action</th>
+          </tr>
+        </thead>
 
-              <tbody>
-                {data.length === 0 ? (
-                  <tr>
-                    <td colSpan="10" className="p-4 text-center">
-                      No Products Added
+        <tbody>
+          {data.length === 0 ? (
+            <tr>
+              <td
+                colSpan={isOrganizing ? 10 : 9}
+                className="p-4 text-center"
+              >
+                No Products Added
+              </td>
+            </tr>
+          ) : (
+            data.map((item, index) => {
+              const showLevel =
+                index === 0 || data[index - 1]?.level !== item.level;
+
+              return (
+                <React.Fragment key={index}>
+
+                  {/* 🔥 LEVEL ROW (NEW ADDITION ONLY) */}
+                  {showLevel && item.level && (
+                    <tr>
+                      <td
+                        colSpan={isOrganizing ? 10 : 9}
+                        className="bg-gray-200 font-semibold text-center py-2"
+                      >
+                        {item.level}
+                      </td>
+                    </tr>
+                  )}
+
+                  {/* 🔥 YOUR ORIGINAL ROW (UNCHANGED) */}
+                  <tr
+                    draggable={isOrganizing}
+                    onDragStart={() => handleDragStart(index)}
+                    onDragOver={handleDragOver}
+                    onDrop={() => handleDrop(index)}
+                    className={`border hover:bg-gray-50 transition
+                      ${dragIndex === index ? "opacity-40" : ""}
+                      ${isOrganizing ? "cursor-move" : ""}
+                    `}
+                  >
+                    {isOrganizing && (
+                      <td className="border p-2 cursor-grab">
+                        <GripHorizontal className="w-5 h-5 mx-auto text-gray-500" />
+                      </td>
+                    )}
+
+                    <td className="border p-2">{index + 1}</td>
+
+                    <td className="border p-2">
+                      {item.productName || "-"}
+                    </td>
+
+                    <td className="border p-2">
+                      {item.code || "-"}
+                    </td>
+
+                    <td className="border p-2">
+                      {item.fgCode || "-"}
+                    </td>
+
+                    <td className="border p-2">
+                      {item.productType || "-"}
+                    </td>
+
+                    <td className="border p-2">
+                      {item.traceability || "-"}
+                    </td>
+
+                    <td className="border p-2">
+                      {item.addedOn || "-"}
+                    </td>
+
+                    <td className="border p-2">
+                      <span
+                        className={`font-medium ${
+                          item.status
+                            ? "text-green-600"
+                            : "text-red-500"
+                        }`}
+                      >
+                        ● {item.status ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+
+                    <td className="border p-2 relative">
+                      <button
+                        onClick={() => toggleMenu(index)}
+                        className="px-2 py-1 text-xl font-bold"
+                      >
+                        ⋮
+                      </button>
+
+                      {openMenuIndex === index && (
+                        <div className="absolute right-2 top-full mt-1 bg-white border shadow rounded w-24 z-10">
+                          <button
+                            onClick={() => {
+                              onEdit && onEdit(index);
+                              setOpenMenuIndex(null);
+                            }}
+                            className="w-full text-left px-2 py-1 hover:bg-gray-100"
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              onDelete && onDelete(index);
+                              setOpenMenuIndex(null);
+                            }}
+                            className="w-full text-left px-2 py-1 hover:bg-gray-100 text-red-500"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
-                ) : (
-                  data.map((item, index) => (
-                    <Draggable
-                      key={item.id?.toString() || index.toString()}
-                      draggableId={item.id?.toString() || index.toString()}
-                      index={index}
-                    >
-                      {(provided, snapshot) => (
-                        <tr
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          className={`${snapshot.isDragging ? "bg-gray-100" : ""}`}
-                        >
-                          <td className="border p-2">{index + 1}</td>
-
-                          {/* Drag handle with lucide icon */}
-                          <td
-                            className="border p-2 cursor-grab"
-                            {...provided.dragHandleProps}
-                          >
-                            <Move className="w-5 h-5 text-gray-500 mx-auto" />
-                          </td>
-
-                          <td className="border p-2">{item.productName || "-"}</td>
-                          <td className="border p-2">{item.code || "-"}</td>
-                          <td className="border p-2">{item.fgCode || "-"}</td>
-                          <td className="border p-2">{item.productType || "-"}</td>
-                          <td className="border p-2">{item.traceability || "-"}</td>
-                          <td className="border p-2">{item.addedOn || "-"}</td>
-                          <td className="border p-2">
-                            <span
-                              className={`font-medium ${
-                                item.status ? "text-green-600" : "text-red-500"
-                              }`}
-                            >
-                              ● {item.status ? "Active" : "Inactive"}
-                            </span>
-                          </td>
-                          <td className="border p-2">
-                            <button
-                              onClick={() => onEdit(index)}
-                              className="px-2 py-1 text-blue-600 hover:underline"
-                            >
-                              Edit
-                            </button>
-                            {" | "}
-                            <button
-                              onClick={() => onDelete(index)}
-                              className="px-2 py-1 text-red-500 hover:underline"
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      )}
-                    </Draggable>
-                  ))
-                )}
-                {provided.placeholder}
-              </tbody>
-            </table>
+                </React.Fragment>
+              );
+            })
           )}
-        </Droppable>
-      </DragDropContext>
+        </tbody>
+      </table>
     </div>
   );
 };

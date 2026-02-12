@@ -13,7 +13,7 @@ const ReusableTable = ({
   width = "w-72",
 }) => {
   return (
-    <div className={`${width} mt-8 rounded bg-white shadow`}>
+    <div className={`${width} mt-8 h-[230px]  rounded bg-white shadow`}>
       {title && (
         <div className="px-4 py-2 font-medium text-[#272757] border-b">
           {title}

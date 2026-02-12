@@ -12,13 +12,16 @@ const AddProduct = () => {
   const editData = location.state?.editData;
   const editIndex = location.state?.editIndex;
 
-  //  Fields configuration
+  //  Fields Configuration
   const fields = [
     {
+      level: "Level 1",
+
       name: "productName",
       label: "Product Name",
-      required: true,
-      placeholder: "Enter Product Name",
+      type: "select",
+      options: ["Motor", "Computer", "Bicycle"],
+      placeholder: "Select Product Name",
       fullWidth: true,
     },
     {
@@ -27,12 +30,19 @@ const AddProduct = () => {
       placeholder: "Enter Code",
     },
     {
-      name: "fgCode",
-      label: "FG Code",
-      type: "select",
-      options: ["MECGGENX3", "MECGGENX3S", "MECGGENX12I+", "MECGGENX12I"],
-      placeholder: "Select FG Code",
-    },
+  name: "fgCode",
+  label: "FG Code",
+  type: "select",
+  options: [
+    "FG-1001",
+    "FG-1002",
+    "FG-2001",
+    "FG-3005",
+    "FG-4008",
+  ],
+  placeholder: "Select FG Code",
+},
+
     {
       name: "productType",
       label: "Product Type",
@@ -44,7 +54,7 @@ const AddProduct = () => {
       name: "traceability",
       label: "Traceability",
       type: "select",
-      options: ["Batch Wise", "Serial Wise", "None"],
+      options: ["Yes", "No"],
       placeholder: "Select Traceability",
     },
     {
@@ -54,17 +64,19 @@ const AddProduct = () => {
     },
   ];
 
-  //  Submit handler
+  //  Submit Handler
   const handleSubmit = (formData) => {
     const existingProducts =
       JSON.parse(localStorage.getItem("products")) || [];
 
     if (editIndex !== undefined) {
+      // Update
       existingProducts[editIndex] = {
         ...existingProducts[editIndex],
         ...formData,
       };
     } else {
+      // Create
       existingProducts.push({
         ...formData,
         addedOn: new Date().toLocaleDateString("en-GB"),
@@ -86,7 +98,16 @@ const AddProduct = () => {
           <CommonForm
             title={editIndex !== undefined ? "Edit Product" : "Add Product"}
             fields={fields}
-            initialData={editData || {}}
+            initialData={
+              editData || {
+                productName: "",
+                code: "",
+                fgCode: "",
+                productType: "",
+                traceability: "",
+                status: true,
+              }
+            }
             onSubmit={handleSubmit}
             onCancel={() => navigate("/manage-products")}
             submitLabel={
