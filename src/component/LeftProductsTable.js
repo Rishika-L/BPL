@@ -77,7 +77,7 @@ const LeftProductsTable = ({
 <<<<<<< HEAD
 =======
                   {/*  YOUR ORIGINAL ROW (UNCHANGED) */}
->>>>>>> ce2ad282fefce82ba2444e41112c023d7a440ccc
+
                   <tr
                     draggable={isOrganizing}
                     onDragStart={() => handleDragStart(index)}
