@@ -10,10 +10,12 @@ const ReusableTable = ({
   onSelect,
   onEdit,
   onDelete,
+  showActions = true,   //  control Actions column
   width = "w-72",
 }) => {
   return (
-    <div className={`${width} mt-8 h-[230px]  rounded bg-white shadow`}>
+    <div className={`${width} mt-8 h-[230px] rounded bg-white shadow`}>
+      
       {title && (
         <div className="px-4 py-2 font-medium text-[#272757] border-b">
           {title}
@@ -21,17 +23,20 @@ const ReusableTable = ({
       )}
 
       <table className="w-full text-sm">
-        <thead className="bg-gray-50">
+        <thead className="bg-gray-100">
           <tr>
-            {selectable && <th className="w-10"></th>}
+            {/* Checkbox */}
+            {selectable && <th className="w-10 text-center"></th>}
 
+            {/* Dynamic Columns */}
             {columns.map((col) => (
               <th key={col.key} className="text-left px-3 py-2">
                 {col.label}
               </th>
             ))}
 
-            {(onEdit || onDelete) && (
+            {/* Actions Header */}
+            {showActions && (
               <th className="text-left px-3 py-2">Actions</th>
             )}
           </tr>
@@ -44,7 +49,7 @@ const ReusableTable = ({
                 colSpan={
                   columns.length +
                   (selectable ? 1 : 0) +
-                  (onEdit || onDelete ? 1 : 0)
+                  (showActions ? 1 : 0)
                 }
                 className="text-center py-4 text-gray-400"
               >
@@ -63,42 +68,40 @@ const ReusableTable = ({
                     isSelected ? "bg-blue-50" : ""
                   }`}
                 >
-                  {selectable && (
-                    <td className="text-center">
+                  {/* Checkbox */}
+
+                  {selectable&&(
+                    <td className="stextt-center">
                       <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => onSelect(item)}
-                        className="accent-[#272757]"
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => onSelect(item)}
+                      className="accent-[#272757]"
                       />
                     </td>
                   )}
 
+
+
+
+                  
+
+                  {/* Data Columns */}
                   {columns.map((col) => (
                     <td key={col.key} className="px-3 py-2">
                       {item[col.key]}
                     </td>
                   ))}
 
-                  {(onEdit || onDelete) && (
-                    <td className="px-3 py-2 flex gap-3 text-sm">
-                      {onEdit && (
-                        <button
-                          onClick={() => onEdit(item)}
-                          className="text-blue-600 hover:text-blue-800"
-                        >
-                          
-                        </button>
-                      )}
-
-                      {onDelete && (
-                        <button
-                          onClick={() => onDelete(item)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                     
-                        </button>
-                      )}
+                  {/* Actions Column */}
+                  {showActions && (
+                    <td className="px-3 py-2 text-center">
+                      <button
+                        onClick={() => onEdit && onEdit(item)}
+                        className="text-gray-600 hover:text-black"
+                      >
+                        
+                      </button>
                     </td>
                   )}
                 </tr>

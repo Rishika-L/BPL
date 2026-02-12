@@ -25,11 +25,13 @@ const AddProduct = () => {
       fullWidth: true,
     },
     {
+        level: "Level 1",
       name: "code",
       label: "Code",
       placeholder: "Enter Code",
     },
     {
+        level: "Level 1",
   name: "fgCode",
   label: "FG Code",
   type: "select",
@@ -44,6 +46,7 @@ const AddProduct = () => {
 },
 
     {
+        level: "Level 1",
       name: "productType",
       label: "Product Type",
       type: "select",
@@ -51,6 +54,7 @@ const AddProduct = () => {
       placeholder: "Select Product Type",
     },
     {
+        level: "Level 1",
       name: "traceability",
       label: "Traceability",
       type: "select",
@@ -58,6 +62,7 @@ const AddProduct = () => {
       placeholder: "Select Traceability",
     },
     {
+        level: "Level 1",
       name: "status",
       label: "Status",
       type: "toggle",

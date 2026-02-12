@@ -93,8 +93,6 @@ const ManageProducts = () => {
   };
 
 
-
-
   
   return (
     <>
@@ -224,7 +222,7 @@ const ManageProducts = () => {
               {/* PRODUCTS TABLE */}
              <LeftProductsTable
   data={products}
-  setData={setProducts}   // 👈 THIS IS IMPORTANT
+  setData={setProducts}   //  THIS IS IMPORTANT
   onEdit={handleEdit}
   onDelete={handleDelete}
   isOrganizing={isOrganizing}
