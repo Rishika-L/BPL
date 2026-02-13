@@ -1,0 +1,30 @@
+
+.form-textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  display: flex;
+  /* resize: vertical; */
+  @apply border border-secondary-400 text-md;
+}
+label {
+  margin-bottom: 8px;
+}
+
+
+.form-textarea:focus-visible {
+  outline: 0;
+  @apply border border-secondary-400 text-md;
+}
+label {
+ 
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  @apply text-primary-800 text-md font-medium
+
+}
+
+.error-message {
+    @apply text-md text-error mt-1 block;
+  }

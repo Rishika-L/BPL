@@ -32,7 +32,7 @@ const Login = () => {
   e.preventDefault();
 
   const validUserId = "12345";
-  const validPassword = "admin@12345";
+  const validPassword = "admin";
 
   if (
     form.username === validUserId &&

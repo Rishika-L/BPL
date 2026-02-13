@@ -1,0 +1,19 @@
+.toast__container {
+  @apply shadow-xl bg-white text-md  border border-secondary-400 rounded-lg w-96;
+}
+
+.toast__container.toast-success{
+    @apply border-l-4 border-s-success;
+}
+
+.toast__container.toast-error{
+    @apply border-l-4 border-s-error;
+}
+
+.toast__container .success {
+  @apply text-success;
+}
+
+.toast__container .content {
+  @apply p-1 text-primary-400 font-medium;
+}

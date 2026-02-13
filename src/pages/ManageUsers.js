@@ -1,29 +1,44 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
-import CommonTable from "../component/CommonTable";
 import TopBarActions from "../component/TopBarActions";
+import AgTable from "../Components/Table/AgTable";
 
 const ManageUsers = () => {
   const navigate = useNavigate();
 
+  // ================= STATE =================
   const [activeTab, setActiveTab] = useState("users");
-
   const [users, setUsers] = useState([]);
+
   const [search, setSearch] = useState("");
   const [gender, setGender] = useState("ALL");
   const [role, setRole] = useState("ALL");
   const [status, setStatus] = useState("ALL");
 
-  // LOAD USERS
+  // Pagination
+  const [activePage, setActivePage] = useState(1);
+  const [perPage, setPerPage] = useState(25);
+
+  // ================= LOAD USERS =================
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("users")) || [];
-    setUsers(stored);
+    const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
+
+    // If empty, add sample users for testing
+    if (storedUsers.length === 0) {
+      const sampleUsers = [
+        { firstName: "Rishika", email: "rishika@test.com", gender: "Female", role: "Admin", status: true },
+        { firstName: "Arun", email: "arun@test.com", gender: "Male", role: "User", status: false },
+        { firstName: "Priya", email: "priya@test.com", gender: "Female", role: "User", status: true },
+      ];
+      setUsers(sampleUsers);
+    } else {
+      setUsers(storedUsers);
+    }
   }, []);
 
-  // FILTER LOGIC
+  // ================= FILTER USERS =================
   const filteredUsers = users.filter((u) => {
     return (
       (search === "" ||
@@ -36,32 +51,38 @@ const ManageUsers = () => {
     );
   });
 
-  // DELETE
-  const handleDelete = (id) => {
-    if (!window.confirm("Delete this user?")) return;
-    const updated = users.filter((u) => u.id !== id);
-    setUsers(updated);
-    localStorage.setItem("users", JSON.stringify(updated));
-  };
+  // ================= PAGINATION CALC =================
+  const totalRecords = filteredUsers.length;
+  const totalPages = Math.ceil(totalRecords / perPage) || 1;
 
-  // EDIT
-  const handleEdit = (user) => {
-    navigate("/users/new", { state: { user } });
-  };
+  const startIndex = (activePage - 1) * perPage;
+  const endIndex = startIndex + perPage;
 
-  // USER TABLE COLUMNS
-  const userColumns = [
-    { key: "imagePreview", label: "Profile Image", type: "image" },
-    { key: "userId", label: "User ID" },
-    { key: "firstName", label: "User Name" },
-    { key: "gender", label: "Gender" },
-    { key: "phone", label: "Phone No." },
-    { key: "email", label: "Email" },
-    { key: "group", label: "Group Name" },
-    { key: "role", label: "Role Name" },
-    { key: "createdAt", label: "Created On", type: "date" },
-    { key: "status", label: "Status", type: "status" },
+  const currentUsers = filteredUsers.slice(startIndex, endIndex);
+
+  const startCount = totalRecords === 0 ? 0 : startIndex + 1;
+  const endCount = Math.min(endIndex, totalRecords);
+
+  // ================= TABLE COLUMNS =================
+  const columnDefs = [
+    { headerName: "First Name", field: "firstName" },
+    { headerName: "Email", field: "email" },
+    { headerName: "Gender", field: "gender" },
+    { headerName: "Role", field: "role" },
+    {
+      headerName: "Status",
+      field: "status",
+      valueFormatter: (params) => (params.value ? "Active" : "Inactive"),
+    },
   ];
+
+  // ================= PAGE HANDLERS =================
+  const handlePageChange = (page) => setActivePage(page);
+  const changeActivepage = (page) => page !== "..." && setActivePage(page);
+  const handlePerPageChange = (newPerPage) => {
+    setPerPage(newPerPage);
+    setActivePage(1);
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -71,11 +92,11 @@ const ManageUsers = () => {
         <Sidebar />
 
         <div className="flex-1 p-4">
-          <h2 className="text-xl font-semibold text-[#272757] mt-20 ">
+          <h2 className="text-xl font-semibold text-[#272757] mt-20">
             Manage Users
           </h2>
 
-          {/* USERS | GROUPS TAB */}
+          {/* ================= TABS ================= */}
           <div className="flex gap-6 border-b mt-6">
             <button
               onClick={() => setActiveTab("users")}
@@ -100,10 +121,8 @@ const ManageUsers = () => {
             </button>
           </div>
 
-          {/* FILTER BAR */}
-          <TopBarActions 
-            title="Manage Users"
-            assistiveText="Filter users by search, gender, role, status"
+          {/* ================= FILTER BAR ================= */}
+          <TopBarActions
             search={search}
             setSearch={setSearch}
             gender={gender}
@@ -118,24 +137,34 @@ const ManageUsers = () => {
               setGender("ALL");
               setRole("ALL");
               setStatus("ALL");
+              setActivePage(1);
             }}
           />
 
-          {/* TABLE */}
+          {/* ================= USERS TABLE ================= */}
           {activeTab === "users" && (
             <div className="mt-6">
-              <CommonTable
-                data={filteredUsers} 
-                columns={userColumns}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+              <AgTable
+                rowData={currentUsers}
+                columnDefs={columnDefs}
+                activePage={activePage}
+                changeActivepage={changeActivepage}
+                handlePageChange={handlePageChange}
+                paginationData={{
+                  total_page: totalPages,
+                  total_count: totalRecords,
+                  from: startCount,
+                  to: endCount,
+                }}
+                onPerPageChange={handlePerPageChange}
               />
             </div>
           )}
 
+          {/* ================= GROUPS TAB ================= */}
           {activeTab === "groups" && (
             <div className="mt-10 text-gray-500 text-sm">
-              Groups table
+              Groups table coming soon...
             </div>
           )}
         </div>

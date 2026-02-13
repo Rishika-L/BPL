@@ -1,0 +1,17 @@
+
+.fileInputContainer{
+}
+
+.inputContainer{
+    max-width: 200px;
+    @apply  p-3 bg-secondary-400 rounded text-secondary-800 cursor-pointer;
+
+}
+.img-input{
+    @apply bg-secondary-400
+}
+
+.fileContainer{
+    
+    @apply max-w-md p-1 bg-secondary-400 rounded 
+}

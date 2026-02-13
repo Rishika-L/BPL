@@ -1,0 +1,3 @@
+.tab-active{
+    @apply text-primary-800 font-medium text-md border-b-2;
+}

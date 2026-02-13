@@ -1,0 +1,61 @@
+.inputContainer{
+    @apply mt-2 z-0
+}
+
+.inputContainer label,
+.inputContainer input {
+  display: block;
+}
+
+.inputContainer label {
+  margin-bottom: 8px;
+  margin-left: 0px;
+  display: flex;
+  align-items: center;
+  @apply text-primary-800 text-md font-medium
+}
+
+
+.inputContainer input {
+    display: block;
+    padding: 0.422rem 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;   
+    border-radius: 0.25rem;
+    @apply border border-secondary-400 text-md;
+}
+
+.inputContainer input:focus-visible {
+    outline: 0;
+    @apply border border-secondary-400
+
+}
+
+/* .error {
+ 
+} */
+
+.errorMessage {
+    @apply text-md text-error pt-1;
+}
+
+.uppercase-input {
+  text-transform: uppercase;
+}
+.search_icon{
+  background-color: #dbdade;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  color: rgba(0, 0, 0, 0);
+  opacity: 1;
+  display: block;
+  background: url('../../../assets/icons/svg/calendar.svg') no-repeat;
+  width: 16px;
+  height: 16px;
+  border-width: thin;
+}
+.otpInput {
+  
+    pointer-events: auto;
+}

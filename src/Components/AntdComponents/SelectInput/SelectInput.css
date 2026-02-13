@@ -1,0 +1,22 @@
+/* SelectInput.css */
+.custom-select .ant-select-selector {
+  height: 40px !important;  /* Adjust height of the select input */
+  line-height: 40px !important;
+}
+
+.custom-select .ant-select-selection-item {
+  line-height: 38px !important;  /* Adjust line height of selected item */
+}
+
+.custom-select .ant-select-dropdown .ant-select-item {
+  min-height: 40px !important;  /* Adjust option height */
+  line-height: 40px !important;  /* Adjust option line height */
+  padding: 0 12px !important;   /* Adjust option padding */
+}
+
+.ant-picker.ant-picker-outlined{
+      min-height: 40px !important;  /* Adjust option height */
+        padding: 0 12px !important;   /* Adjust option padding */
+
+
+}

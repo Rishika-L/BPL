@@ -1,0 +1,17 @@
+.dropdown-item {
+    background-color: #fff; /* Default background color */
+    transition: background-color 0.2s ease, color 0.2s ease;
+    @apply text-primary-400 
+  }
+  
+  .dropdown-item:hover {
+    color: #fff; /* Hover text color */
+    @apply bg-secondary-400 text-primary-800
+  }
+
+  .dropdownContainer{
+    max-height: 50vh;
+    overflow-y: scroll;
+  }
+  
+  

@@ -1,0 +1,99 @@
+/* Container for custom date input */
+.date-input-container {
+  position: relative;
+  display: inline-block;
+  width: 192px; /* Match your input width */
+  height: 50px;
+}
+/* Hide all placeholder and format hints */
+.date-input {
+  /* Chrome/Safari */
+  &::-webkit-datetime-edit,
+  &::-webkit-clear-button,
+  &::-webkit-inner-spin-button {
+    display: none;
+    -webkit-appearance: none; 
+    -webkit-text-stroke:"dfdf"
+  }
+  
+  /* Firefox */
+  color: transparent;
+  
+  &:valid {
+    /* Show text when date is selected */
+    color: inherit;
+  }
+  
+  /* Edge/IE */
+  &::-ms-clear {
+    display: none;
+  }
+  
+  /* Calendar icon positioning */
+  &::-webkit-calendar-picker-indicator {
+        background: url('../../assets/icons/svg/calendar.svg') no-repeat right;
+
+    /* pointer-events: none;  */
+
+    /* position: absolute;
+    right: 12px;
+    color: transparent;
+    opacity: 1;
+    background: url('../../assets/icons/svg/calendar.svg') no-repeat right;
+    background-size: 36px;
+    width: 16px;
+    height: 36px;
+    z-index: 1;
+    pointer-events: none; //Keep date picker functional 
+    */
+
+  }
+}
+
+/* Fallback for non-WebKit browsers */
+/* 
+.date-input-container::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 36px;
+  background: url('../../assets/icons/svg/calendar.svg') no-repeat right;
+  pointer-events: none;
+      padding: 0.422rem 0.875rem;
+
+} */
+
+.date-input {
+  /* Hide default date segments */
+  &::-webkit-datetime-edit {}
+  &::-webkit-datetime-edit-fields-wrapper {}
+  &::-webkit-datetime-edit-text,
+  &::-webkit-datetime-edit-month-field,
+  &::-webkit-datetime-edit-day-field,
+  &::-webkit-datetime-edit-year-field {
+    color: transparent;
+    position: relative;
+  }
+  
+  /* Create custom appearance for empty field */
+  &::-webkit-datetime-edit-text:after,
+  &::-webkit-datetime-edit-month-field:after,
+  &::-webkit-datetime-edit-day-field:after,
+  &::-webkit-datetime-edit-year-field:after {
+    content: attr(data-placeholder);
+    color: #999;
+    position: absolute;
+    left: 0;
+  }
+  
+  /* Show actual value when selected */
+  &:valid::-webkit-datetime-edit-text,
+  &:valid::-webkit-datetime-edit-month-field,
+  &:valid::-webkit-datetime-edit-day-field,
+  &:valid::-webkit-datetime-edit-year-field {
+    color: inherit;
+  }
+}

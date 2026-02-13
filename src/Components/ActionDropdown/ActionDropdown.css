@@ -1,0 +1,74 @@
+.dropdown-menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-button {
+    padding: 1px;
+    color: rgb(15, 14, 14);
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 10%;
+    right: 15px !important;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    margin-top: 5px;
+    font-size: 14px;
+    color: #5d596c;
+    min-width: 150px;
+    border-radius: 4px;
+    padding:  8px;}
+
+.options-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.option {
+    padding: 1px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding-left: 8px;
+    padding-right: 4px;
+    font-weight: 500;
+
+}
+
+.option-icon {
+    margin-right: 8px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.option:hover {
+    background-color: color-mix(in srgb, #D5D5EC 80%, transparent); 
+    /* background-color: #f0f0f0; */
+    border-radius: 4px;
+    padding-left: 8px;
+    padding-right: 4px;
+    @apply text-primary-400 
+}
+
+.option:active {
+    background-color: #e0e0e0;
+}
+
+.ag-row-last:last-child .dropdown-menu {
+    top: -200%;
+    right: 15px !important;
+}
+.ag-row-first.ag-row-last:last-child .dropdown-menu {
+    top: 10%;
+    right: 15px !important;
+}

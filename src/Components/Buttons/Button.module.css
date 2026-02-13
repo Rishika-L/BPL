@@ -1,0 +1,21 @@
+.btn{
+    @apply border text-md rounded p-2 px-8 font-medium cursor-pointer ;
+}
+.btn:disabled{
+  @apply cursor-not-allowed opacity-45;
+}
+
+.spinner {
+    font-size: 1rem;
+    animation: spin 0.6s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+  
+    100% {
+      transform: rotate(360deg);
+    }
+  }
