@@ -1,17 +1,18 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { IoIosArrowDropleft } from "react-icons/io";
 
 import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
 import CommonForm from "../component/CommonForm";
 
-
 const fields = [
   { name: "userId", label: "User ID", required: true, fullWidth: true },
 
+
+  
   {
-    name: "group",
+    name: "role",
     label: "Group Name",
     type: "select",
     options: ["Admin", "User"],
@@ -42,30 +43,36 @@ const fields = [
   { name: "image", label: "Profile Image", type: "file", fullWidth: true },
 ];
 
+
 const NewUser = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
- 
+  const editData = location.state?.editData;
+  const editIndex = location.state?.editIndex;
+
   const handleSubmit = (data) => {
     const existingUsers =
       JSON.parse(localStorage.getItem("users")) || [];
 
-    const newUser = {
-      id: Date.now(),
+    const userData = {
+      id: editData ? editData.id : Date.now(),
       ...data,
-
-      imagePreview: data.image
+      profileImage: data.image
         ? URL.createObjectURL(data.image)
-        : "",
-
-      createdAt: new Date().toISOString(),
+        : editData?.profileImage || "",
+      createdOn:
+        editData?.createdOn ||
+        new Date().toLocaleDateString("en-GB"),
     };
 
-    localStorage.setItem(
-      "users",
-      JSON.stringify([...existingUsers, newUser])
-    );
+    if (editIndex !== undefined) {
+      existingUsers[editIndex] = userData;
+    } else {
+      existingUsers.push(userData);
+    }
 
+    localStorage.setItem("users", JSON.stringify(existingUsers));
     navigate("/users");
   };
 
@@ -77,7 +84,6 @@ const NewUser = () => {
         <Sidebar />
 
         <div className="flex-1 px-16 py-20">
-          {/* HEADER */}
           <div className="mb-6">
             <div className="flex items-center gap-4">
               <button
@@ -92,7 +98,7 @@ const NewUser = () => {
                   Manage Users /
                 </p>
                 <h2 className="text-2xl font-semibold text-[#272757]">
-                  New User
+                  {editData ? "Edit User" : "New User"}
                 </h2>
               </div>
             </div>
@@ -100,14 +106,12 @@ const NewUser = () => {
             <div className="mt-3 border-b border-gray-300" />
           </div>
 
-          {/*  COMMON FORM */}
           <CommonForm
             fields={fields}
-            initialData={{ status: true }}
+            initialData={editData || { status: true }}
             onSubmit={handleSubmit}
             onCancel={() => navigate("/users")}
           />
-          
         </div>
       </div>
     </div>

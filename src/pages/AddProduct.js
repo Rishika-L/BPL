@@ -12,11 +12,9 @@ const AddProduct = () => {
   const editData = location.state?.editData;
   const editIndex = location.state?.editIndex;
 
-  //  Fields Configuration
   const fields = [
     {
       level: "Level 1",
-
       name: "productName",
       label: "Product Name",
       type: "select",
@@ -25,28 +23,21 @@ const AddProduct = () => {
       fullWidth: true,
     },
     {
-        level: "Level 1",
+      level: "Level 1",
       name: "code",
       label: "Code",
       placeholder: "Enter Code",
     },
     {
-        level: "Level 1",
-  name: "fgCode",
-  label: "FG Code",
-  type: "select",
-  options: [
-    "FG-1001",
-    "FG-1002",
-    "FG-2001",
-    "FG-3005",
-    "FG-4008",
-  ],
-  placeholder: "Select FG Code",
-},
-
+      level: "Level 1",
+      name: "fgCode",
+      label: "FG Code",
+      type: "select",
+      options: ["FG-1001", "FG-1002", "FG-2001", "FG-3005", "FG-4008"],
+      placeholder: "Select FG Code",
+    },
     {
-        level: "Level 1",
+      level: "Level 1",
       name: "productType",
       label: "Product Type",
       type: "select",
@@ -54,7 +45,7 @@ const AddProduct = () => {
       placeholder: "Select Product Type",
     },
     {
-        level: "Level 1",
+      level: "Level 1",
       name: "traceability",
       label: "Traceability",
       type: "select",
@@ -62,34 +53,30 @@ const AddProduct = () => {
       placeholder: "Select Traceability",
     },
     {
-        level: "Level 1",
+      level: "Level 1",
       name: "status",
       label: "Status",
       type: "toggle",
     },
   ];
 
-  //  Submit Handler
   const handleSubmit = (formData) => {
-    const existingProducts =
-      JSON.parse(localStorage.getItem("products")) || [];
-
     if (editIndex !== undefined) {
-      // Update
-      existingProducts[editIndex] = {
-        ...existingProducts[editIndex],
-        ...formData,
-      };
+      // UPDATE
+      navigate("/manage-products", {
+        state: {
+          updatedProduct: formData,
+          editIndex: editIndex,
+        },
+      });
     } else {
-      // Create
-      existingProducts.push({
-        ...formData,
-        addedOn: new Date().toLocaleDateString("en-GB"),
+      // CREATE
+      navigate("/manage-products", {
+        state: {
+          newProduct: formData,
+        },
       });
     }
-
-    localStorage.setItem("products", JSON.stringify(existingProducts));
-    navigate("/manage-products");
   };
 
   return (
