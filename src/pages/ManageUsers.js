@@ -8,8 +8,7 @@ import AgTable from "../Components/Table/AgTable";
 const ManageUsers = () => {
   const navigate = useNavigate();
 
-  // ================= STATE =================
-  const [activeTab, setActiveTab] = useState("users");
+  const [activeTab] = useState("users");
   const [users, setUsers] = useState([]);
 
   const [search, setSearch] = useState("");
@@ -17,7 +16,6 @@ const ManageUsers = () => {
   const [role, setRole] = useState("ALL");
   const [status, setStatus] = useState("ALL");
 
-  // Pagination
   const [activePage, setActivePage] = useState(1);
   const [perPage, setPerPage] = useState(25);
 
@@ -25,14 +23,23 @@ const ManageUsers = () => {
   useEffect(() => {
     const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
 
-    // If empty, add sample users for testing
     if (storedUsers.length === 0) {
       const sampleUsers = [
-        { firstName: "Rishika", email: "rishika@test.com", gender: "Female", role: "Admin", status: true },
-        { firstName: "Arun", email: "arun@test.com", gender: "Male", role: "User", status: false },
-        { firstName: "Priya", email: "priya@test.com", gender: "Female", role: "User", status: true },
+        {
+          id: 1,
+          firstName: "Rishika",
+          lastName: "R",
+          phone: "9876543210",
+          email: "rishika@test.com",
+          gender: "Female",
+          role: "Admin",
+          createdOn: "2026-02-14",
+          status: true,
+        },
       ];
+
       setUsers(sampleUsers);
+      localStorage.setItem("users", JSON.stringify(sampleUsers));
     } else {
       setUsers(storedUsers);
     }
@@ -51,7 +58,7 @@ const ManageUsers = () => {
     );
   });
 
-  // ================= PAGINATION CALC =================
+  // ================= PAGINATION =================
   const totalRecords = filteredUsers.length;
   const totalPages = Math.ceil(totalRecords / perPage) || 1;
 
@@ -63,24 +70,74 @@ const ManageUsers = () => {
   const startCount = totalRecords === 0 ? 0 : startIndex + 1;
   const endCount = Math.min(endIndex, totalRecords);
 
-  // ================= TABLE COLUMNS =================
-  const columnDefs = [
-    { headerName: "First Name", field: "firstName" },
-    { headerName: "Email", field: "email" },
-    { headerName: "Gender", field: "gender" },
-    { headerName: "Role", field: "role" },
-    {
-      headerName: "Status",
-      field: "status",
-      valueFormatter: (params) => (params.value ? "Active" : "Inactive"),
-    },
-  ];
+  // ================= COLUMN DEFINITIONS =================
+ const columnDefs = [
 
-  // ================= PAGE HANDLERS =================
+  // STATUS FIRST
+  {
+    headerName: "Status",
+    field: "status",
+    cellRenderer: (params) => (
+      <div className="flex items-center gap-2">
+        <span
+          className={`w-2 h-2 rounded-full ${
+            params.value ? "bg-green-500" : "bg-red-500"
+          }`}
+        ></span>
+        <span>{params.value ? "Active" : "Inactive"}</span>
+      </div>
+    ),
+    width: 120,
+  },
+
+  {
+    headerName: "Profile Image",
+    cellRenderer: (params) =>
+      params.data.profileImage ? (
+        <img
+          src={params.data.profileImage}
+          alt="profile"
+          className="w-10 h-10 rounded-full object-cover"
+        />
+      ) : (
+        <div className="w-10 h-10 rounded-full bg-gray-300"></div>
+      ),
+    width: 90,
+  },
+
+  { headerName: "User ID", field: "id" },
+
+  {
+    headerName: "User Name",
+    field: "firstName",
+    cellRenderer: (params) => (
+      <span className="text-blue-600 cursor-pointer font-medium">
+        {params.value}
+      </span>
+    ),
+  },
+
+  { headerName: "Gender", field: "gender" },
+  { headerName: "Phone No.", field: "phone" },
+  { headerName: "Email", field: "email" },
+  { headerName: "Role Name", field: "role" },
+  { headerName: "Created on", field: "createdOn" },
+
+  {
+    headerName: "Action",
+    cellRenderer: () => (
+      <div className="cursor-pointer ml-7 text-xl">⋮</div>
+    ),
+    width: 80,
+  },
+];
+
+
   const handlePageChange = (page) => setActivePage(page);
   const changeActivepage = (page) => page !== "..." && setActivePage(page);
+
   const handlePerPageChange = (newPerPage) => {
-    setPerPage(newPerPage);
+    setPerPage(Number(newPerPage));
     setActivePage(1);
   };
 
@@ -96,32 +153,6 @@ const ManageUsers = () => {
             Manage Users
           </h2>
 
-          {/* ================= TABS ================= */}
-          <div className="flex gap-6 border-b mt-6">
-            <button
-              onClick={() => setActiveTab("users")}
-              className={`pb-2 ${
-                activeTab === "users"
-                  ? "border-b-2 border-[#272757] text-[#272757] font-medium"
-                  : "text-gray-500"
-              }`}
-            >
-              Users
-            </button>
-
-            <button
-              onClick={() => setActiveTab("groups")}
-              className={`pb-2 ${
-                activeTab === "groups"
-                  ? "border-b-2 border-[#272757] text-[#272757] font-medium"
-                  : "text-gray-500"
-              }`}
-            >
-              Groups
-            </button>
-          </div>
-
-          {/* ================= FILTER BAR ================= */}
           <TopBarActions
             search={search}
             setSearch={setSearch}
@@ -141,7 +172,6 @@ const ManageUsers = () => {
             }}
           />
 
-          {/* ================= USERS TABLE ================= */}
           {activeTab === "users" && (
             <div className="mt-6">
               <AgTable
@@ -152,19 +182,14 @@ const ManageUsers = () => {
                 handlePageChange={handlePageChange}
                 paginationData={{
                   total_page: totalPages,
+                  per_page: perPage,
                   total_count: totalRecords,
                   from: startCount,
                   to: endCount,
                 }}
+                pagination={true}
                 onPerPageChange={handlePerPageChange}
               />
-            </div>
-          )}
-
-          {/* ================= GROUPS TAB ================= */}
-          {activeTab === "groups" && (
-            <div className="mt-10 text-gray-500 text-sm">
-              Groups table coming soon...
             </div>
           )}
         </div>

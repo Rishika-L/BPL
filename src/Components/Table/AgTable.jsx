@@ -1,36 +1,34 @@
-import React, { useState, useEffect, useRef } from "react";
-import { AgGridReact,Theme  } from "ag-grid-react";
+import React, {  useRef } from "react";
+import { AgGridReact } from "ag-grid-react";
+// import {
+//  RowSelectionModule,
+//   ClientSideRowModelModule,
+//   CellStyleModule,
+//   ValidationModule,
+//   ModuleRegistry,
+//   TextFilterModule,
+//   NumberFilterModule,
+//   DateFilterModule,
+//   CustomFilterModule,
+//   ColumnAutoSizeModule 
+// } from "ag-grid-community";
 import {
- RowSelectionModule,
-  ClientSideRowModelModule,
-  CellStyleModule,
-  ValidationModule,
   ModuleRegistry,
-  TextFilterModule,
-  NumberFilterModule,
-  DateFilterModule,
-  CustomFilterModule,
-  ColumnAutoSizeModule 
+  AllCommunityModule
 } from "ag-grid-community";
+
+
+
+
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 import "./AgTable.css";
 import Pagination from "./Pagination/Pagination";
 import Loader from "../Loader/Loader";
-import { AgGridThemeQuartz } from 'ag-grid-community/styles/ag-theme-quartz.css';
 
 
-ModuleRegistry.registerModules([
-  // RowSelectionModule,
-  // ClientSideRowModelModule,
-  // CellStyleModule,
-  // ValidationModule,
-  // // TextFilterModule,
-  // // NumberFilterModule,
-  // DateFilterModule,
-  // // CustomFilterModule,
-  // ColumnAutoSizeModule
-]);
+
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 
 const AgTable = ({
