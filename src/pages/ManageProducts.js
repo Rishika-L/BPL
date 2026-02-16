@@ -5,6 +5,8 @@ import Sidebar from "../component/Sidebar";
 import ReusableTable from "../component/ReusableTable";
 import AgTable from "../Components/Table/AgTable";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Menu } from "@headlessui/react";
+import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 
 const FG_CODES = [
   { code: "MECGGENX3" },
@@ -112,25 +114,48 @@ const ManageProducts = () => {
   },
     { headerName: "Added On", field: "addedOn", flex: 1 },
     {
-      headerName: "Action",
-      width: 150,
-      cellRenderer: (params) => (
-        <div className="flex gap-3">
-          <button
-            onClick={() => handleEdit(params.node.rowIndex)}
-            className="text-blue-600 text-sm"
-          >
-            Edit
-          </button>
-          <button
-            onClick={() => handleDelete(params.node.rowIndex)}
-            className="text-red-600 text-sm"
-          >
-            Delete
-          </button>
-        </div>
-      ),
-    },
+     headerName: "Action",
+     width: 100,
+     cellRenderer: (params) => (
+       <Menu as="div" className="relative inline-block text-left">
+         <Menu.Button className="p-2 rounded-full hover:bg-gray-200">
+           <EllipsisVerticalIcon className="w-5 h-5 text-gray-600" />
+         </Menu.Button>
+   
+         <Menu.Items className="absolute right-0 mt-2 w-28 origin-top-right bg-white border border-gray-200 rounded-md shadow-lg focus:outline-none z-50">
+           
+           {/* EDIT */}
+           <Menu.Item>
+             {({ active }) => (
+               <button
+                 onClick={() => handleEdit(params.data)}
+                 className={`${
+                   active ? "bg-gray-100" : ""
+                 } block w-full text-left px-4 py-2 text-sm text-blue-600`}
+               >
+                 Edit
+               </button>
+             )}
+           </Menu.Item>
+   
+           {/* DELETE */}
+           <Menu.Item>
+             {({ active }) => (
+               <button
+                 onClick={() => handleDelete(params.data.id)}
+                 className={`${
+                   active ? "bg-gray-100" : ""
+                 } block w-full text-left px-4 py-2 text-sm text-red-600`}
+               >
+                 Delete
+               </button>
+             )}
+           </Menu.Item>
+   
+         </Menu.Items>
+       </Menu>
+     ),
+   },
   ];
 
 
@@ -263,6 +288,7 @@ const ManageProducts = () => {
                 rowData={products}
                 columnDefs={columnDefs}
                 pagination={true}
+                
               />
               
             </div>

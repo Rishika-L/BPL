@@ -9,8 +9,6 @@ import CommonForm from "../component/CommonForm";
 const fields = [
   { name: "userId", label: "User ID", required: true, fullWidth: true },
 
-
-  
   {
     name: "role",
     label: "Group Name",
@@ -43,7 +41,6 @@ const fields = [
   { name: "image", label: "Profile Image", type: "file", fullWidth: true },
 ];
 
-
 const NewUser = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -51,21 +48,27 @@ const NewUser = () => {
   const editData = location.state?.editData;
   const editIndex = location.state?.editIndex;
 
-  const handleSubmit = (data) => {
+  const handleSubmit = async (data) => {
     const existingUsers =
       JSON.parse(localStorage.getItem("users")) || [];
 
+    let base64Image = editData?.profileImage || "";
+
+    //  Convert file to base64
+    if (data.image instanceof File) {
+      base64Image = await convertToBase64(data.image);
+    }
+
     const userData = {
-      id: editData ? editData.id : Date.now(),
+      id: data.userId,
       ...data,
-      profileImage: data.image
-        ? URL.createObjectURL(data.image)
-        : editData?.profileImage || "",
+      profileImage: base64Image, 
       createdOn:
         editData?.createdOn ||
         new Date().toLocaleDateString("en-GB"),
     };
 
+    // Edit or Add
     if (editIndex !== undefined) {
       existingUsers[editIndex] = userData;
     } else {
@@ -74,6 +77,16 @@ const NewUser = () => {
 
     localStorage.setItem("users", JSON.stringify(existingUsers));
     navigate("/users");
+  };
+
+  //  Base64 Converter Function
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
   };
 
   return (

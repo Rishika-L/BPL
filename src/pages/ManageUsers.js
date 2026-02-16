@@ -4,12 +4,13 @@ import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
 import TopBarActions from "../component/TopBarActions";
 import AgTable from "../Components/Table/AgTable";
+import { Menu } from "@headlessui/react";
+import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 
 const ManageUsers = () => {
   const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
-
   const [search, setSearch] = useState("");
   const [gender, setGender] = useState("ALL");
   const [role, setRole] = useState("ALL");
@@ -18,13 +19,28 @@ const ManageUsers = () => {
   const [activePage, setActivePage] = useState(1);
   const [perPage, setPerPage] = useState(25);
 
-  //  Load Users from LocalStorage
+  // ================= LOAD USERS =================
   useEffect(() => {
     const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
     setUsers(storedUsers);
   }, []);
+  
+useEffect(() => {
+  const loadUsers = () => {
+    const storedUsers =
+      JSON.parse(localStorage.getItem("users")) || [];
+    setUsers(storedUsers);
+  };
 
-  // ================= FILTER USERS =================
+  loadUsers();
+
+  window.addEventListener("storage", loadUsers);
+
+  return () =>
+    window.removeEventListener("storage", loadUsers);
+}, []);
+
+  // ================= FILTER =================
   const filteredUsers = users.filter((u) => {
     return (
       (search === "" ||
@@ -37,19 +53,21 @@ const ManageUsers = () => {
     );
   });
 
-  // ================= DELETE USER =================
-  const handleDelete = (rowIndex) => {
-    const updatedUsers = users.filter((_, i) => i !== rowIndex);
+  // ================= DELETE (FIXED) =================
+  const handleDelete = (id) => {
+    const updatedUsers = users.filter((u) => u.id !== id);
     setUsers(updatedUsers);
     localStorage.setItem("users", JSON.stringify(updatedUsers));
   };
 
-  // ================= EDIT USER =================
-  const handleEdit = (rowIndex) => {
+  // ================= EDIT (FIXED) =================
+  const handleEdit = (user) => {
+    const index = users.findIndex((u) => u.id === user.id);
+
     navigate("/users/new", {
       state: {
-        editData: users[rowIndex],
-        editIndex: rowIndex,
+        editData: user,
+        editIndex: index,
       },
     });
   };
@@ -131,27 +149,50 @@ const ManageUsers = () => {
       width: 130,
     },
 
-    {
-      headerName: "Action",
-      width: 160,
-      cellRenderer: (params) => (
-        <div className="flex gap-4">
-          <button
-            onClick={() => handleEdit(params.node.rowIndex)}
-            className="text-blue-600 text-sm font-medium"
-          >
-            Edit
-          </button>
+   {
+  headerName: "Action",
+  width: 100,
+  cellRenderer: (params) => (
+    <Menu as="div" className="relative inline-block text-left">
+      <Menu.Button className="p-2 rounded-full hover:bg-gray-200">
+        <EllipsisVerticalIcon className="w-5 h-5 text-gray-600" />
+      </Menu.Button>
 
-          <button
-            onClick={() => handleDelete(params.node.rowIndex)}
-            className="text-red-600 text-sm font-medium"
-          >
-            Delete
-          </button>
-        </div>
-      ),
-    },
+      <Menu.Items className="absolute right-0 mt-2 w-28 origin-top-right bg-white border border-gray-200 rounded-md shadow-lg focus:outline-none z-50">
+        
+        {/* EDIT */}
+        <Menu.Item>
+          {({ active }) => (
+            <button
+              onClick={() => handleEdit(params.data)}
+              className={`${
+                active ? "bg-gray-100" : ""
+              } block w-full text-left px-4 py-2 text-sm text-blue-600`}
+            >
+              Edit
+            </button>
+          )}
+        </Menu.Item>
+
+        {/* DELETE */}
+        <Menu.Item>
+          {({ active }) => (
+            <button
+              onClick={() => handleDelete(params.data.id)}
+              className={`${
+                active ? "bg-gray-100" : ""
+              } block w-full text-left px-4 py-2 text-sm text-red-600`}
+            >
+              Delete
+            </button>
+          )}
+        </Menu.Item>
+
+      </Menu.Items>
+    </Menu>
+  ),
+}
+
   ];
 
   return (
