@@ -1,252 +1,316 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// src/pages/ManageProducts.jsx
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
-import TopBarActions from "../component/TopBarActions";
-import AgTable from "../Components/Table/AgTable";
+import ReusableTable from "../component/ReusableTable";
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
+import { useNavigate } from "react-router-dom";
 import { Menu } from "@headlessui/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 
-const ManageUsers = () => {
+
+const FG_CODES = [
+  { code: "MECGGENX3" },
+  { code: "MECGGENX3S" },
+  { code: "MECGGENX12I+" },
+  { code: "MECGGENX12I" },
+];
+
+const ManageProducts = () => {
   const navigate = useNavigate();
 
-  const [users, setUsers] = useState([]);
-  const [search, setSearch] = useState("");
-  const [gender, setGender] = useState("ALL");
-  const [role, setRole] = useState("ALL");
-  const [status, setStatus] = useState("ALL");
+  const [activeMainTab, setActiveMainTab] = useState("productMaster");
+  const [activeSubTab, setActiveSubTab] = useState("products");
+  const [isOrganizing, setIsOrganizing] = useState(false);
+  const [selectedFGCodes, setSelectedFGCodes] = useState([]);
 
-  const [activePage, setActivePage] = useState(1);
-  const [perPage, setPerPage] = useState(25);
-
-  // ================= LOAD USERS =================
-  useEffect(() => {
-    const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
-    setUsers(storedUsers);
-  }, []);
-  
-useEffect(() => {
-  const loadUsers = () => {
-    const storedUsers =
-      JSON.parse(localStorage.getItem("users")) || [];
-    setUsers(storedUsers);
-  };
-
-  loadUsers();
-
-  window.addEventListener("storage", loadUsers);
-
-  return () =>
-    window.removeEventListener("storage", loadUsers);
-}, []);
-
-  // ================= FILTER =================
-  const filteredUsers = users.filter((u) => {
-    return (
-      (search === "" ||
-        u.firstName?.toLowerCase().includes(search.toLowerCase()) ||
-        u.email?.toLowerCase().includes(search.toLowerCase())) &&
-      (gender === "ALL" || u.gender === gender) &&
-      (role === "ALL" || u.role === role) &&
-      (status === "ALL" ||
-        (status === "Active" ? u.status === true : u.status === false))
-    );
+  const [products, setProducts] = useState(() => {
+    const saved = localStorage.getItem("products");
+    return saved
+      ? JSON.parse(saved)
+      : FG_CODES.map((fg, i) => ({
+          id: Date.now() + i,
+          productName: `Product ${i + 1}`,
+          code: `Code ${i + 1}`,
+          fgName: fg.code,
+          productType: "Type A",
+          traceability: "Traceable",
+          status: true,
+          addedOn: new Date().toLocaleDateString("en-GB"),
+        }));
   });
 
-  // ================= DELETE (FIXED) =================
-  const handleDelete = (id) => {
-    const updatedUsers = users.filter((u) => u.id !== id);
-    setUsers(updatedUsers);
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
+  useEffect(() => {
+    localStorage.setItem("products", JSON.stringify(products));
+  }, [products]);
+
+  const toggleFGCode = useCallback((code) => {
+    setSelectedFGCodes((prev) =>
+      prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]
+    );
+  }, []);
+
+  const handleEdit = useCallback(
+    (rowData) => {
+      const index = products.findIndex((item) => item.id === rowData.id);
+      navigate("/add-product", { state: { editData: rowData, editIndex: index } });
+    },
+    [products, navigate]
+  );
+
+  const handleDelete = useCallback((id) => {
+    setProducts((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  const handleSave = () => {
+    setIsOrganizing(false);
+    localStorage.setItem("products", JSON.stringify(products));
+    alert("Order Saved Successfully");
   };
 
-  // ================= EDIT (FIXED) =================
-  const handleEdit = (user) => {
-    const index = users.findIndex((u) => u.id === user.id);
+  const handleReset = () => {
+    const saved = localStorage.getItem("products");
+    setProducts(saved ? JSON.parse(saved) : []);
+    setIsOrganizing(false);
+  };
 
-    navigate("/users/new", {
-      state: {
-        editData: user,
-        editIndex: index,
+  const columnDefs = useMemo(() => {
+    const baseColumns = [
+      {
+        headerName: "S.No",
+        flex: 0.5,
+        valueGetter: (params) => params.node.rowIndex + 1,
       },
-    });
-  };
-
-  // ================= PAGINATION =================
-  const totalRecords = filteredUsers.length;
-  const totalPages = Math.ceil(totalRecords / perPage) || 1;
-
-  const startIndex = (activePage - 1) * perPage;
-  const endIndex = startIndex + perPage;
-
-  const currentUsers = filteredUsers.slice(startIndex, endIndex);
-
-  const startCount = totalRecords === 0 ? 0 : startIndex + 1;
-  const endCount = Math.min(endIndex, totalRecords);
-
-  const handlePageChange = (page) => setActivePage(page);
-
-  const handlePerPageChange = (newPerPage) => {
-    setPerPage(Number(newPerPage));
-    setActivePage(1);
-  };
-
-  // ================= TABLE COLUMNS =================
-  const columnDefs = [
-    {
-      headerName: "Profile Image",
-      cellRenderer: (params) =>
-        params.data?.profileImage ? (
-          <img
-            src={params.data.profileImage}
-            alt="profile"
-            className="w-10 h-10 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-300"></div>
+      { headerName: "Product Name", field: "productName", flex: 1, editable: isOrganizing },
+      { headerName: "Code", field: "code", flex: 1, editable: isOrganizing },
+      { headerName: "FG Name", field: "fgName", flex: 1, editable: isOrganizing },
+      { headerName: "Product Type", field: "productType", flex: 1, editable: isOrganizing },
+      { headerName: "Traceability", field: "traceability", flex: 1, editable: isOrganizing },
+      {
+        headerName: "Status",
+        field: "status",
+        width: 120,
+        cellRenderer: (params) => (
+          <div className="flex items-center gap-2">
+            <span
+              className={`w-2 h-2 rounded-full ${
+                params.value ? "bg-green-500" : "bg-red-500"
+              }`}
+            ></span>
+            <span>{params.value ? "Active" : "Inactive"}</span>
+          </div>
         ),
-      width: 100,
-    },
+        editable: isOrganizing,
+      },
+      { headerName: "Added On", field: "addedOn", flex: 1 },
+      {
+        headerName: "Action",
+        width: 110,
+        cellRenderer: (params) => (
+          <Menu as="div" className="relative inline-block text-left">
+            <Menu.Button className="p-2 rounded-full hover:bg-gray-200">
+              <EllipsisVerticalIcon className="w-5 h-5 text-gray-600" />
+            </Menu.Button>
+            <Menu.Items className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-lg z-50">
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    onClick={() => handleEdit(params.data)}
+                    className={`${
+                      active ? "bg-gray-100" : ""
+                    } block w-full text-left px-4 py-2 text-sm text-blue-600`}
+                  >
+                    Edit
+                  </button>
+                )}
+              </Menu.Item>
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    onClick={() => handleDelete(params.data.id)}
+                    className={`${
+                      active ? "bg-gray-100" : ""
+                    } block w-full text-left px-4 py-2 text-sm text-red-600`}
+                  >
+                    Delete
+                  </button>
+                )}
+              </Menu.Item>
+            </Menu.Items>
+          </Menu>
+        ),
+      },
+    ];
 
-    { headerName: "User ID", field: "id" },
+    if (isOrganizing) {
+      return [
+        {
+          headerName: "",
+          field: "drag",
+          width: 40,
+          rowDrag: true,
+          suppressMenu: true,
+         
+        },
+        ...baseColumns,
+      ];
+    }
 
-    {
-      headerName: "User Name",
-      field: "firstName",
-      cellRenderer: (params) => (
-        <span className="text-blue-600 font-medium cursor-pointer">
-          {params.value}
-        </span>
-      ),
-    },
-
-    { headerName: "Gender", field: "gender" },
-    { headerName: "Phone No.", field: "phone" },
-
-    {
-      headerName: "Email",
-      field: "email",
-      flex: 1,
-      minWidth: 220,
-    },
-
-    { headerName: "Role Name", field: "role" },
-    { headerName: "Created on", field: "createdOn" },
-
-    {
-      headerName: "Status",
-      field: "status",
-      cellRenderer: (params) => (
-        <div className="flex items-center gap-2">
-          <span
-            className={`w-2 h-2 rounded-full ${
-              params.value ? "bg-green-500" : "bg-red-500"
-            }`}
-          ></span>
-          <span>{params.value ? "Active" : "Inactive"}</span>
-        </div>
-      ),
-      width: 130,
-    },
-
-   {
-  headerName: "Action",
-  width: 100,
-  cellRenderer: (params) => (
-    <Menu as="div" className="relative inline-block text-left">
-      <Menu.Button className="p-2 rounded-full hover:bg-gray-200">
-        <EllipsisVerticalIcon className="w-5 h-5 text-gray-600" />
-      </Menu.Button>
-
-      <Menu.Items className="absolute right-0 mt-2 w-28 origin-top-right bg-white border border-gray-200 rounded-md shadow-lg focus:outline-none z-50">
-        
-        {/* EDIT */}
-        <Menu.Item>
-          {({ active }) => (
-            <button
-              onClick={() => handleEdit(params.data)}
-              className={`${
-                active ? "bg-gray-100" : ""
-              } block w-full text-left px-4 py-2 text-sm text-blue-600`}
-            >
-              Edit
-            </button>
-          )}
-        </Menu.Item>
-
-        {/* DELETE */}
-        <Menu.Item>
-          {({ active }) => (
-            <button
-              onClick={() => handleDelete(params.data.id)}
-              className={`${
-                active ? "bg-gray-100" : ""
-              } block w-full text-left px-4 py-2 text-sm text-red-600`}
-            >
-              Delete
-            </button>
-          )}
-        </Menu.Item>
-
-      </Menu.Items>
-    </Menu>
-  ),
-}
-
-  ];
+    return baseColumns;
+  }, [handleEdit, handleDelete, isOrganizing]);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <>
       <Navbar />
-
       <div className="flex">
         <Sidebar />
+        <div className="flex-1 p-6 bg-gray-50 min-h-screen">
+          <h1 className="text-xl font-semibold text-[#272757] mt-16">
+            Manage Products
+          </h1>
 
-        <div className="flex-1 p-4">
-          <h2 className="text-xl font-semibold text-[#272757] mt-20">
-            Manage Users
-          </h2>
+          <div className="flex gap-6 border-b mt-8">
+            {[
+              { id: "productMaster", label: "Product Master" },
+              { id: "products", label: "Products" },
+              { id: "type", label: "Type" },
+              { id: "uploadHistory", label: "Upload History" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveMainTab(tab.id)}
+                className={`pb-2 ${
+                  activeMainTab === tab.id
+                    ? "border-b-2 border-[#272757] text-[#272757] font-medium"
+                    : "text-gray-500"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-          <TopBarActions
-            search={search}
-            setSearch={setSearch}
-            gender={gender}
-            setGender={setGender}
-            role={role}
-            setRole={setRole}
-            status={status}
-            setStatus={setStatus}
-            onCreate={() => navigate("/users/new")}
-            onClear={() => {
-              setSearch("");
-              setGender("ALL");
-              setRole("ALL");
-              setStatus("ALL");
-              setActivePage(1);
-            }}
-          />
-
-          <div className="mt-6">
-            <AgTable
-              rowData={currentUsers}
-              columnDefs={columnDefs}
-              activePage={activePage}
-              handlePageChange={handlePageChange}
-              pagination={true}
-              paginationData={{
-                total_page: totalPages,
-                per_page: perPage,
-                total_count: totalRecords,
-                from: startCount,
-                to: endCount,
-              }}
-              onPerPageChange={handlePerPageChange}
+          <div className="flex gap-6 mt-4">
+            <ReusableTable
+              title="FG Code List"
+              columns={[{ key: "code", label: "FG Code" }]}
+              data={FG_CODES}
+              selectable
+              selectedItems={selectedFGCodes}
+              onSelect={toggleFGCode}
+              width="w-72"
             />
+
+            <div className="flex-1 bg-white rounded pt-16 px-6 mt-8">
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex gap-6 border-b items-center">
+                  <button
+                    onClick={() => setActiveSubTab("products")}
+                    className={`pb-2 ${
+                      activeSubTab === "products"
+                        ? "border-b-2 border-black text-[#272757] font-medium"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    Products
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab("fgInfo")}
+                    className={`pb-2 ${
+                      activeSubTab === "fgInfo"
+                        ? "border-b-2 border-black text-[#272757] font-medium"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    FG Info
+                  </button>
+                  <button
+                    onClick={() => setIsOrganizing(!isOrganizing)}
+                    className={`pb-2 ${
+                      isOrganizing
+                        ? "border-b-2 border-black text-[#272757] font-medium"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    Organize
+                  </button>
+
+                  {isOrganizing && (
+                    <div className="flex gap-3 ml-4">
+                      <button
+                        onClick={handleSave}
+                        className="bg-green-600 text-white px-4 py-1 rounded text-sm"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={handleReset}
+                        className="bg-red-500 text-white px-4 py-1 rounded text-sm"
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-3">
+                  <button className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm">
+                    Download Excel
+                  </button>
+                  <button className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm">
+                    Upload
+                  </button>
+                  <button
+                    onClick={() => navigate("/add-product")}
+                    className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm"
+                  >
+                    Add Product
+                  </button>
+                </div>
+              </div>
+
+              <div
+                className="ag-theme-alpine"
+                style={{ height: 500, width: "100%" }}
+              >
+                <AgGridReact
+                  rowData={products}
+                  columnDefs={columnDefs}
+                  rowDragManaged={isOrganizing}
+                  animateRows={isOrganizing}
+                  suppressMoveWhenRowDragging={true}
+                  onRowDragEnd={(event) => {
+                    if (!isOrganizing) return;
+                    const newData = [...products];
+                    const movedItem = event.node.data;
+                    let oldIndex = event.node.rowIndex;
+                    let newIndex =
+                      event.overIndex !== undefined
+                        ? event.overIndex
+                        : event.newIndex;
+
+                    if (newIndex >= newData.length) newIndex = newData.length - 1;
+                    if (oldIndex === newIndex) return;
+
+                    newData.splice(oldIndex, 1);
+                    newData.splice(newIndex, 0, movedItem);
+                    setProducts(newData);
+                  }}
+                  defaultColDef={{
+                    resizable: true,
+                    sortable: true,
+                    editable: isOrganizing,
+                  }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
-export default ManageUsers;
+export default ManageProducts;

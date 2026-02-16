@@ -1,5 +1,5 @@
 // src/pages/ManageProducts.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
 import ReusableTable from "../component/ReusableTable";
@@ -18,63 +18,64 @@ const FG_CODES = [
 const ManageProducts = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const processedRef = useRef(false); //  DUPLICATE PREVENTION
 
   const [activeMainTab, setActiveMainTab] = useState("productMaster");
   const [activeSubTab, setActiveSubTab] = useState("products");
   const [selectedFGCodes, setSelectedFGCodes] = useState([]);
   const [isOrganizing, setIsOrganizing] = useState(false);
 
+  // Products state
   const [products, setProducts] = useState(() => {
     const saved = localStorage.getItem("products");
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Save to localStorage
+  // Save products to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("products", JSON.stringify(products));
   }, [products]);
 
-  // Add / Update Product
+  // Add / Update Product ONCE
   useEffect(() => {
+    if (processedRef.current) return; //  prevent double processing
     if (location.state?.newProduct) {
       const newProduct = {
         ...location.state.newProduct,
         id: Date.now(),
         addedOn: new Date().toLocaleDateString("en-GB"),
       };
-
       setProducts((prev) => [...prev, newProduct]);
+      processedRef.current = true;
       navigate(".", { replace: true });
     }
 
-    if (location.state?.updatedProduct !== undefined) {
+    if (location.state?.updatedProduct) {
       const { updatedProduct, editIndex } = location.state;
-
       setProducts((prev) =>
         prev.map((item, i) =>
           i === editIndex ? { ...item, ...updatedProduct } : item
         )
       );
-
+      processedRef.current = true;
       navigate(".", { replace: true });
     }
   }, [location.state, navigate]);
 
-  const handleDelete = (index) => {
-    setProducts(products.filter((_, i) => i !== index));
+  // EDIT
+  const handleEdit = (rowData) => {
+    const index = products.findIndex((item) => item.id === rowData.id);
+    navigate("/add-product", { state: { editData: rowData, editIndex: index } });
   };
 
-  const handleEdit = (index) => {
-    navigate("/add-product", {
-      state: { editData: products[index], editIndex: index },
-    });
+  // DELETE
+  const handleDelete = (id) => {
+    setProducts((prev) => prev.filter((item) => item.id !== id));
   };
 
   const toggleFGCode = (item) => {
     setSelectedFGCodes((prev) =>
-      prev.includes(item)
-        ? prev.filter((c) => c !== item)
-        : [...prev, item]
+      prev.includes(item) ? prev.filter((c) => c !== item) : [...prev, item]
     );
   };
 
@@ -89,15 +90,21 @@ const ManageProducts = () => {
     setIsOrganizing(false);
   };
 
-  // AgTable Columns
-  const columnDefs = [
-    { headerName: "Product Name", field: "productName", flex: 1 },
-    { headerName: "Code", field: "code", flex: 1 },
-    { headerName: "FG Code", field: "fgCode", flex: 1 },
-    { headerName: "Product Type", field: "productType", flex: 1 },
-    { headerName: "Traceability", field: "traceability", flex: 1 },
-   // STATUS FIRST
+ const columnDefs = [
   {
+    headerName: "S.No",
+    flex: 0.5,
+    valueGetter: (params) => params.node.rowIndex + 1, // automatic serial number
+  },
+  { headerName: "Product Name", field: "productName", flex: 1 },
+  { headerName: "Code", field: "code", flex: 1 },
+  { headerName: "FG Code", field: "fgCode", flex: 1 },
+  { headerName: "Product Type", field: "productType", flex: 1 },
+  { headerName: "Traceability", field: "traceability", flex: 1 },
+ 
+  { headerName: "Added On", field: "addedOn", flex: 1 },
+
+   {
     headerName: "Status",
     field: "status",
     cellRenderer: (params) => (
@@ -112,58 +119,48 @@ const ManageProducts = () => {
     ),
     width: 120,
   },
-    { headerName: "Added On", field: "addedOn", flex: 1 },
-    {
-     headerName: "Action",
-     width: 100,
-     cellRenderer: (params) => (
-       <Menu as="div" className="relative inline-block text-left">
-         <Menu.Button className="p-2 rounded-full hover:bg-gray-200">
-           <EllipsisVerticalIcon className="w-5 h-5 text-gray-600" />
-         </Menu.Button>
-   
-         <Menu.Items className="absolute right-0 mt-2 w-28 origin-top-right bg-white border border-gray-200 rounded-md shadow-lg focus:outline-none z-50">
-           
-           {/* EDIT */}
-           <Menu.Item>
-             {({ active }) => (
-               <button
-                 onClick={() => handleEdit(params.data)}
-                 className={`${
-                   active ? "bg-gray-100" : ""
-                 } block w-full text-left px-4 py-2 text-sm text-blue-600`}
-               >
-                 Edit
-               </button>
-             )}
-           </Menu.Item>
-   
-           {/* DELETE */}
-           <Menu.Item>
-             {({ active }) => (
-               <button
-                 onClick={() => handleDelete(params.data.id)}
-                 className={`${
-                   active ? "bg-gray-100" : ""
-                 } block w-full text-left px-4 py-2 text-sm text-red-600`}
-               >
-                 Delete
-               </button>
-             )}
-           </Menu.Item>
-   
-         </Menu.Items>
-       </Menu>
-     ),
-   },
-  ];
+  {
+    headerName: "Action",
+    width: 110,
+    cellRenderer: (params) => (
+      <Menu as="div" className="relative inline-block text-left">
+        <Menu.Button className="p-2 rounded-full hover:bg-gray-200">
+          <EllipsisVerticalIcon className="w-5 h-5 text-gray-600" />
+        </Menu.Button>
+        <Menu.Items className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-lg z-50">
+          <Menu.Item>
+            {({ active }) => (
+              <button
+                onClick={() => handleEdit(params.data)}
+                className={`${
+                  active ? "bg-gray-100" : ""
+                } block w-full text-left px-4 py-2 text-sm text-blue-600`}
+              >
+                Edit
+              </button>
+            )}
+          </Menu.Item>
+          <Menu.Item>
+            {({ active }) => (
+              <button
+                onClick={() => handleDelete(params.data.id)}
+                className={`${
+                  active ? "bg-gray-100" : ""
+                } block w-full text-left px-4 py-2 text-sm text-red-600`}
+              >
+                Delete
+              </button>
+            )}
+          </Menu.Item>
+        </Menu.Items>
+      </Menu>
+    ),
+  },
+];
 
-
-  
   return (
     <>
       <Navbar />
-
       <div className="flex">
         <Sidebar />
 
@@ -208,9 +205,8 @@ const ManageProducts = () => {
 
             {/* RIGHT SIDE */}
             <div className="flex-1 bg-white rounded pt-16 px-6 mt-8">
+              {/* SUB TABS + ORGANIZE */}
               <div className="flex justify-between items-center mb-4">
-
-                {/* SUB TABS */}
                 <div className="flex gap-6 border-b items-center">
                   <button
                     onClick={() => setActiveSubTab("products")}
@@ -284,13 +280,9 @@ const ManageProducts = () => {
               </div>
 
               {/* AG TABLE */}
-              <AgTable
-                rowData={products}
-                columnDefs={columnDefs}
-                pagination={true}
-                
-              />
-              
+              <AgTable 
+              rowData={products} 
+              columnDefs={columnDefs} pagination={true} />
             </div>
           </div>
         </div>
