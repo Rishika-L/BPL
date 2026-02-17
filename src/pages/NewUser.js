@@ -19,7 +19,7 @@ const NewUser = () => {
       label: "User ID",
       required: true,
       fullWidth: true,
-      disabled: !!editData, // ID edit panna mudiyadhu
+      disabled: !!editData, 
     },
     {
       name: "role",
@@ -53,7 +53,7 @@ const NewUser = () => {
     const userData = {
       id: data.userId,
       ...data,
-      profileImage: data.image?.name || editData?.profileImage || "", // 🔥 only file name save
+      profileImage: data.image?.name || editData?.profileImage || "", //  only file name save
       createdOn:
         editData?.createdOn ||
         new Date().toLocaleDateString("en-GB"),
