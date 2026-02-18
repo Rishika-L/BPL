@@ -31,12 +31,13 @@ const ManageProducts = () => {
   const [selectedFGCodes, setSelectedFGCodes] = useState([]);
   const [isOrganizing, setIsOrganizing] = useState(false);
 
-  // Save products to localStorage
+  // Save products
   useEffect(() => {
     localStorage.setItem("products", JSON.stringify(products));
+    
   }, [products]);
 
-  // Add / Update product from navigation state
+  // Level 1 navigation state
   useEffect(() => {
     if (processedRef.current) return;
 
@@ -51,7 +52,31 @@ const ManageProducts = () => {
       processedRef.current = true;
       navigate(".", { replace: true });
     }
-
+// Level 2
+        if (location.state?.newProduct) {
+      const newProduct = {
+        ...location.state.newProduct,
+        id: Date.now(),
+        addedOn: new Date().toLocaleDateString("en-GB"),
+        level: 2,
+      };
+      setProducts((prev) => [...prev, newProduct]);
+      processedRef.current = true;
+      navigate(".", { replace: true });
+    }
+// Level 3
+    if (location.state?.newProduct) {
+      const newProduct = {
+        ...location.state.newProduct,
+        id: Date.now(),
+        addedOn: new Date().toLocaleDateString("en-GB"),
+        level: 3,
+      };
+      setProducts((prev) => [...prev, newProduct]);
+      processedRef.current = true;
+      navigate(".", { replace: true });
+    }
+    
     if (location.state?.updatedProduct) {
       const { updatedProduct, editIndex } = location.state;
       setProducts((prev) =>
@@ -133,19 +158,46 @@ const ManageProducts = () => {
     setIsOrganizing(false);
   };
 
+// ===== DRAG & DROP =====
+const handleRowDragEnd = (event) => {
+  const moved = event.node.data;
+  if (moved.isLevelRow) return;
+
+  const overNode = event.overNode?.data;
+  if (!overNode) return;
+
+  const newLevel = overNode.isLevelRow ? overNode.level : overNode.level || 1;
+
+  // Find indexes in the original products array
+  const movedIndex = products.findIndex((p) => p.id === moved.id);
+  const overIndex = products.findIndex((p) => p.id === overNode.id);
+
+  if (movedIndex === -1 || overIndex === -1) return;
+
+  const updatedProducts = [...products];
+
+  // Swap positions & update level
+  const temp = updatedProducts[overIndex];
+  updatedProducts[overIndex] = { ...updatedProducts[movedIndex], level: newLevel };
+  updatedProducts[movedIndex] = temp;
+
+  setProducts(updatedProducts);
+};
+
+
   // Column definitions
   const columnDefs = useMemo(
     () => [
       isOrganizing && {
         headerName: "",
         field: "drag",
-        rowData:"true",
         width: 40,
-        rowDrag: (params) => !params.data?.isLevelRow,
-        
+       rowDrag: (params) => !params.data?.isLevelRow
 
       },
+
       { headerName: "S.No", field: "sNo", width: 90, cellRenderer: (params) => (params.data?.isLevelRow ? "" : params.value) },
+
       {
         headerName: "Product Name",
         field: "productName",
@@ -158,11 +210,17 @@ const ManageProducts = () => {
           ),
         colSpan: (params) => (params.data?.isLevelRow ? 9 : 1),
       },
+
       { headerName: "Code", field: "code", flex: 1 },
+
       { headerName: "FG Code", field: "fgCode", flex: 1 },
+
       { headerName: "Product Type", field: "productType", flex: 1 },
+
       { headerName: "Traceability", field: "traceability", flex: 1 },
+
       { headerName: "Added On", field: "addedOn", flex: 1 },
+
       {
         headerName: "Status",
         field: "status",
@@ -175,6 +233,7 @@ const ManageProducts = () => {
             </div>
           ),
       },
+
       {
         headerName: "Action",
         width: 100,
@@ -186,8 +245,14 @@ const ManageProducts = () => {
                 <EllipsisVerticalIcon className="w-5 h-5 text-gray-600" />
               </Menu.Button>
               <Menu.Items className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-lg z-50">
-                <Menu.Item>{({ active }) => <button onClick={() => handleEdit(params.data)} className={`${active ? "bg-gray-100" : ""} block w-full px-4 py-2 text-sm text-blue-600`}>Edit</button>}</Menu.Item>
-                <Menu.Item>{({ active }) => <button onClick={() => handleDelete(params.data.id)} className={`${active ? "bg-gray-100" : ""} block w-full px-4 py-2 text-sm text-red-600`}>Delete</button>}</Menu.Item>
+                <Menu.Item>{({ active }) => 
+                  <button onClick={() => handleEdit(params.data)}
+                   className={`${active ? "bg-gray-100" : ""} block w-full px-4 py-2 text-sm text-blue-600`}>Edit</button>}
+                   </Menu.Item>
+                <Menu.Item>{({ active }) => 
+                  <button onClick={() => handleDelete(params.data.id)} 
+                  className={`${active ? "bg-gray-100" : ""} block w-full px-4 py-2 text-sm text-red-600`}>Delete</button>}
+                  </Menu.Item>
               </Menu.Items>
             </Menu>
           );
@@ -197,32 +262,7 @@ const ManageProducts = () => {
     [isOrganizing, handleEdit, handleDelete]
   );
 
-  // ===== DRAG & DROP REPLACE BEHAVIOR =====
-  const handleRowDragEnd = (event) => {
-    const moved = event.node.data;
-    if (moved.isLevelRow) return;
 
-    const overNode = event.overNode?.data;
-    if (!overNode) return;
-
-    const newLevel = overNode.isLevelRow ? overNode.level : overNode.level || 1;
-
-    // Create copy of products
-    const updatedProducts = [...products];
-
-    const movedIndex = updatedProducts.findIndex((p) => p.id === moved.id);
-    const overIndex = updatedProducts.findIndex((p) => p.id === overNode.id);
-
-    if (movedIndex === -1 || overIndex === -1) return;
-
-    // Swap / Replace
-    updatedProducts[movedIndex] = { ...updatedProducts[movedIndex], level: newLevel };
-    const temp = updatedProducts[overIndex];
-    updatedProducts[overIndex] = updatedProducts[movedIndex];
-    updatedProducts[movedIndex] = temp;
-
-    setProducts(updatedProducts);
-  };
 
   return (
     <>
@@ -253,7 +293,8 @@ const ManageProducts = () => {
             <div className="flex-1 bg-white rounded p-6 shadow">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex gap-6 border-b items-center">
-                  <button onClick={() => setActiveSubTab("products")} className={`pb-2 ${activeSubTab === "products" ? "border-b-2 border-black" : "text-gray-500"}`}>Products</button>
+                  <button onClick={() =>
+                     setActiveSubTab("products")} className={`pb-2 ${activeSubTab === "products" ? "border-b-2 border-black" : "text-gray-500"}`}>Products</button>
                   <button onClick={() => setActiveSubTab("fgInfo")} className={`pb-2 ${activeSubTab === "fgInfo" ? "border-b-2 border-black" : "text-gray-500"}`}>FG Info</button>
                   <button onClick={() => setIsOrganizing(!isOrganizing)} className={`pb-2 ${isOrganizing ? "border-b-2 border-black" : "text-gray-500"}`}>Organize</button>
 
@@ -269,17 +310,26 @@ const ManageProducts = () => {
                   <button onClick={() => navigate("/add-product")} className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm">Add Product</button>
                 </div>
               </div>
-<AgTable
-  rowData={rowData}
-  columnDefs={columnDefs}
-  activePage={activePage}
-  handlePageChange={handlePageChange}
-  pagination={true}
-  paginationData={{ total_page: totalPages, per_page: perPage, total_count: totalRecords, from: startCount, to: endCount }}
-  onPerPageChange={handlePerPageChange}
-  onRowDragEnd={handleRowDragEnd}    // <-- make sure this reaches AgGridReact
-/>
 
+              <AgTable
+              //data pass
+                rowData={rowData}
+                //table
+                columnDefs={columnDefs}
+                //pagination
+                activePage={activePage}
+                handlePageChange={handlePageChange}
+                pagination={true}
+                paginationData={{ 
+                  total_page: totalPages,
+                   per_page: perPage, 
+                   total_count: totalRecords, 
+                   from: startCount,
+                    to: endCount }}
+                onPerPageChange={handlePerPageChange}
+                // drag and drop
+                onRowDragEnd={handleRowDragEnd}
+              />
             </div>
           </div>
         </div>

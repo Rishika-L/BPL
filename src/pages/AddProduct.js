@@ -31,9 +31,9 @@ const AddProduct = () => {
       fullWidth: true,
     },
 
-    // ✅ LEVEL FIELD (IMPORTANT)
+    //  LEVEL FIELD (IMPORTANT)
     {
-      name: "level",   // 👈 MUST MATCH ManageProducts
+      name: "level",   //  MUST MATCH ManageProducts
       label: "Level",
       type: "select",
       options: ["Level1", "Level2", "Level3", "Level4"],
@@ -107,7 +107,7 @@ const AddProduct = () => {
             initialData={
               editData || {
                 productName: "",
-                level: "",   // 👈 MUST BE EMPTY STRING
+                level: "",   //  MUST BE EMPTY STRING
                 code: "",
                 fgCode: "",
                 productType: "",

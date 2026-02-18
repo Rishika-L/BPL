@@ -46,6 +46,10 @@ const AgTable = ({
   onSelectionChanged,
   className = "",
   onlyIsEdit = false,
+
+   rowDragManaged,
+  animateRows,
+  onRowDragEnd,
 }) => {
   // const [loading, setLoading] = useState(true);
   const gridRef = useRef();
@@ -134,6 +138,10 @@ const AgTable = ({
           }}
           onGridReady={() => gridRef?.current?.api?.sizeColumnsToFit()}
           onSelectionChanged={handleSelectionChanged} // 💡 Add this line
+
+          rowDragManaged={rowDragManaged}
+          animateRows={animateRows}
+          onRowDragEnd={onRowDragEnd}
         />
         {pagination && (
           // <Pagination

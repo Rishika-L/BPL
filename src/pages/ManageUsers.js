@@ -4,6 +4,8 @@ import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
 import TopBarActions from "../component/TopBarActions";
 import AgTable from "../Components/Table/AgTable";
+import { Menu } from "@headlessui/react";
+import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 
 const ManageUsers = () => {
   const navigate = useNavigate();
@@ -18,7 +20,7 @@ const ManageUsers = () => {
   const [activePage, setActivePage] = useState(1);
   const [perPage, setPerPage] = useState(25);
 
-  // ✅ Load Users from LocalStorage
+  //  Load Users from LocalStorage
   useEffect(() => {
     const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
     setUsers(storedUsers);
@@ -130,28 +132,30 @@ const ManageUsers = () => {
       ),
       width: 130,
     },
-
-    {
-      headerName: "Action",
-      width: 160,
-      cellRenderer: (params) => (
-        <div className="flex gap-4">
-          <button
-            onClick={() => handleEdit(params.node.rowIndex)}
-            className="text-blue-600 text-sm font-medium"
-          >
-            Edit
-          </button>
-
-          <button
-            onClick={() => handleDelete(params.node.rowIndex)}
-            className="text-red-600 text-sm font-medium"
-          >
-            Delete
-          </button>
-        </div>
-      ),
-    },
+{
+        headerName: "Action",
+        width: 100,
+        cellRenderer: (params) => {
+          if (params.data?.isLevelRow) return null;
+          return (
+            <Menu as="div" className="relative inline-block text-left">
+              <Menu.Button className="p-2 hover:bg-gray-200 rounded">
+                <EllipsisVerticalIcon className="w-5 h-5 text-gray-600" />
+              </Menu.Button>
+              <Menu.Items className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-lg z-50">
+                <Menu.Item>{({ active }) => 
+                  <button onClick={() => handleEdit(params.data)}
+                   className={`${active ? "bg-gray-100" : ""} block w-full px-4 py-2 text-sm text-blue-600`}>Edit</button>}
+                   </Menu.Item>
+                <Menu.Item>{({ active }) =>
+                   <button onClick={() => handleDelete(params.data.id)}
+                    className={`${active ? "bg-gray-100" : ""} block w-full px-4 py-2 text-sm text-red-600`}>Delete</button>}
+                    </Menu.Item>
+              </Menu.Items>
+            </Menu>
+          );
+        },
+      },
   ];
 
   return (
