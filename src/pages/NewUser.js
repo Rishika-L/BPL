@@ -25,7 +25,7 @@ const NewUser = () => {
       name: "role",
       label: "Group Name",
       type: "select",
-      options: ["Admin", "User"],
+      options: ["Admin", "User", "Manager"],
       required: true,
       fullWidth: true,
     },
@@ -46,14 +46,16 @@ const NewUser = () => {
     { name: "image", label: "Profile Image", type: "file", fullWidth: true },
   ];
 
-  const handleSubmit = (data) => {
-    const existingUsers =
-      JSON.parse(localStorage.getItem("users")) || [];
 
+const handleSubmit = (data) => {
+  const existingUsers =
+    JSON.parse(localStorage.getItem("users")) || [];
+
+  const saveUser = (imageBase64) => {
     const userData = {
       id: data.userId,
       ...data,
-      profileImage: data.image?.name || editData?.profileImage || "", //  only file name save
+      profileImage: imageBase64,
       createdOn:
         editData?.createdOn ||
         new Date().toLocaleDateString("en-GB"),
@@ -68,6 +70,24 @@ const NewUser = () => {
     localStorage.setItem("users", JSON.stringify(existingUsers));
     navigate("/users");
   };
+
+  // ✅ CASE 1: New image selected (File object)
+  if (data.image && data.image instanceof FileList && data.image.length > 0) {
+    const file = data.image[0];
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      saveUser(reader.result);
+    };
+
+    reader.readAsDataURL(file);
+  } 
+  // ✅ CASE 2: Edit mode – no new image selected
+  else {
+    saveUser(editData?.profileImage || "");
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-100">

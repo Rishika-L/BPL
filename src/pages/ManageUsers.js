@@ -12,6 +12,9 @@ const ManageUsers = () => {
 
   const [users, setUsers] = useState([]);
 
+  const [activeUserTab, setActiveUserTab] = useState("users");
+
+
   const [search, setSearch] = useState("");
   const [gender, setGender] = useState("ALL");
   const [role, setRole] = useState("ALL");
@@ -20,11 +23,12 @@ const ManageUsers = () => {
   const [activePage, setActivePage] = useState(1);
   const [perPage, setPerPage] = useState(25);
 
-  //  Load Users from LocalStorage
-  useEffect(() => {
-    const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
-    setUsers(storedUsers);
-  }, []);
+ useEffect(() => {
+  const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
+  console.log(storedUsers); // 👈 check this
+  setUsers(storedUsers);
+}, []);
+
 
   // ================= FILTER USERS =================
   const filteredUsers = users.filter((u) => {
@@ -40,21 +44,24 @@ const ManageUsers = () => {
   });
 
   // ================= DELETE USER =================
-  const handleDelete = (rowIndex) => {
-    const updatedUsers = users.filter((_, i) => i !== rowIndex);
-    setUsers(updatedUsers);
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-  };
+  const handleDelete = (userId) => {
+  const updatedUsers = users.filter((u) => u.id !== userId);
+  setUsers(updatedUsers);
+  localStorage.setItem("users", JSON.stringify(updatedUsers));
+};
 
-  // ================= EDIT USER =================
-  const handleEdit = (rowIndex) => {
-    navigate("/users/new", {
-      state: {
-        editData: users[rowIndex],
-        editIndex: rowIndex,
-      },
-    });
-  };
+
+const handleEdit = (user) => {
+  const editIndex = users.findIndex((u) => u.id === user.id);
+
+  navigate("/users/new", {
+    state: {
+      editData: user,
+      editIndex: editIndex,
+    },
+  });
+};
+
 
   // ================= PAGINATION =================
   const totalRecords = filteredUsers.length;
@@ -77,32 +84,37 @@ const ManageUsers = () => {
 
   // ================= TABLE COLUMNS =================
   const columnDefs = [
-    {
-      headerName: "Profile Image",
-      cellRenderer: (params) =>
-        params.data?.profileImage ? (
-          <img
-            src={params.data.profileImage}
-            alt="profile"
-            className="w-10 h-10 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-300"></div>
-        ),
-      width: 100,
-    },
+      {
+    headerName: "Profile Image",
+    cellRenderer: (params) =>
+      params.data.profileImage ? (
+        <img
+          src={params.data.profileImage}
+          alt="profile"
+          className="w-10 h-10 rounded-full object-cover"
+        />
+      ) : (
+        <div className="w-10 h-10 rounded-full bg-gray-300"></div>
+      ),
+    width: 90,
+  },
 
     { headerName: "User ID", field: "id" },
 
-    {
-      headerName: "User Name",
-      field: "firstName",
-      cellRenderer: (params) => (
-        <span className="text-blue-600 font-medium cursor-pointer">
-          {params.value}
-        </span>
-      ),
-    },
+   {
+  headerName: "Name",
+  field: "firstName", 
+  cellRenderer: (params) => {
+    const first = params.data?.firstName || "";
+    const last = params.data?.lastName || "";
+    return (
+      <span className="text-blue-600 font-medium cursor-pointer">
+        {first} {last}
+      </span>
+    );
+  },
+},
+
 
     { headerName: "Gender", field: "gender" },
     { headerName: "Phone No.", field: "phone" },
@@ -133,29 +145,53 @@ const ManageUsers = () => {
       width: 130,
     },
 {
-        headerName: "Action",
-        width: 100,
-        cellRenderer: (params) => {
-          if (params.data?.isLevelRow) return null;
-          return (
-            <Menu as="div" className="relative inline-block text-left">
-              <Menu.Button className="p-2 hover:bg-gray-200 rounded">
-                <EllipsisVerticalIcon className="w-5 h-5 text-gray-600" />
-              </Menu.Button>
-              <Menu.Items className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-lg z-50">
-                <Menu.Item>{({ active }) => 
-                  <button onClick={() => handleEdit(params.data)}
-                   className={`${active ? "bg-gray-100" : ""} block w-full px-4 py-2 text-sm text-blue-600`}>Edit</button>}
-                   </Menu.Item>
-                <Menu.Item>{({ active }) =>
-                   <button onClick={() => handleDelete(params.data.id)}
-                    className={`${active ? "bg-gray-100" : ""} block w-full px-4 py-2 text-sm text-red-600`}>Delete</button>}
-                    </Menu.Item>
-              </Menu.Items>
-            </Menu>
-          );
-        },
-      },
+  headerName: "Action",
+  width: 100,
+  cellRenderer: (params) => {
+    const user = params.data;
+
+    return (
+      <Menu as="div" className="relative inline-block text-left">
+        <Menu.Button className="p-2 hover:bg-gray-200 rounded">
+          <EllipsisVerticalIcon className="w-5 h-5 text-gray-600" />
+        </Menu.Button>
+
+        <Menu.Items className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-lg z-50">
+          
+          <Menu.Item>
+            {({ active }) => (
+              <button
+                onClick={() => handleEdit(user)}
+                className={`${
+                  active ? "bg-gray-100" : ""
+                } block w-full px-4 py-2 text-sm text-blue-600`}
+              >
+                Edit
+              </button>
+            )}
+          </Menu.Item>
+
+          <Menu.Item>
+            {({ active }) => (
+              <button
+                onClick={() => handleDelete(user.id)}
+                className={`${
+                  active ? "bg-gray-100" : ""
+                } block w-full px-4 py-2 text-sm text-red-600`}
+              >
+                Delete
+              </button>
+            )}
+          </Menu.Item>
+
+        </Menu.Items>
+      </Menu>
+    );
+  },
+}
+
+
+
   ];
 
   return (
@@ -169,6 +205,25 @@ const ManageUsers = () => {
           <h2 className="text-xl font-semibold text-[#272757] mt-20">
             Manage Users
           </h2>
+
+<div className="flex gap-6 border-b mt-6">
+  {[
+    { id: "users", label: "Users" },
+    { id: "groups", label: "Groups" },
+  ].map((tab) => (
+    <button
+      key={tab.id}
+      onClick={() => setActiveUserTab(tab.id)}
+      className={`pb-2 text-sm font-medium ${
+        activeUserTab === tab.id
+          ? "border-b-2 border-[#272757] text-[#272757]"
+          : "text-gray-500 hover:text-[#272757]"
+      }`}
+    >
+      {tab.label}
+    </button>
+  ))}
+</div>
 
           <TopBarActions
             search={search}
@@ -190,22 +245,31 @@ const ManageUsers = () => {
           />
 
           <div className="mt-6">
-            <AgTable
-              rowData={currentUsers}
-              columnDefs={columnDefs}
-              activePage={activePage}
-              handlePageChange={handlePageChange}
-              pagination={true}
-              paginationData={{
-                total_page: totalPages,
-                per_page: perPage,
-                total_count: totalRecords,
-                from: startCount,
-                to: endCount,
-              }}
-              onPerPageChange={handlePerPageChange}
-            />
-          </div>
+  {activeUserTab === "users" && (
+    <AgTable
+      rowData={currentUsers}
+      columnDefs={columnDefs}
+      activePage={activePage}
+      handlePageChange={handlePageChange}
+      pagination={true}
+      paginationData={{
+        total_page: totalPages,
+        per_page: perPage,
+        total_count: totalRecords,
+        from: startCount,
+        to: endCount,
+      }}
+      onPerPageChange={handlePerPageChange}
+    />
+  )}
+
+  {activeUserTab === "groups" && (
+    <div className="text-gray-500 text-center py-10">
+      Group Table 
+    </div>
+  )}
+</div>
+
         </div>
       </div>
     </div>

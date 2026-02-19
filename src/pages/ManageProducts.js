@@ -45,37 +45,38 @@ const ManageProducts = () => {
       const newProduct = {
         ...location.state.newProduct,
         id: Date.now(),
-        addedOn: new Date().toLocaleDateString("en-GB"),
+        new :Date().toLocaleDateString(),
+
         level: 1,
       };
       setProducts((prev) => [...prev, newProduct]);
       processedRef.current = true;
       navigate(".", { replace: true });
     }
-// Level 2
-        if (location.state?.newProduct) {
-      const newProduct = {
-        ...location.state.newProduct,
-        id: Date.now(),
-        addedOn: new Date().toLocaleDateString("en-GB"),
-        level: 2,
-      };
-      setProducts((prev) => [...prev, newProduct]);
-      processedRef.current = true;
-      navigate(".", { replace: true });
-    }
-// Level 3
-    if (location.state?.newProduct) {
-      const newProduct = {
-        ...location.state.newProduct,
-        id: Date.now(),
-        addedOn: new Date().toLocaleDateString("en-GB"),
-        level: 3,
-      };
-      setProducts((prev) => [...prev, newProduct]);
-      processedRef.current = true;
-      navigate(".", { replace: true });
-    }
+// // Level 2
+//         if (location.state?.newProduct) {
+//       const newProduct = {
+//         ...location.state.newProduct,
+//         id: Date.now(),
+//         addedOn: new Date().toLocaleDateString("en-GB"),
+//         level: 2,
+//       };
+//       setProducts((prev) => [...prev, newProduct]);
+//       processedRef.current = true;
+//       navigate(".", { replace: true });
+//     }
+// // Level 3
+//     if (location.state?.newProduct) {
+//       const newProduct = {
+//         ...location.state.newProduct,
+//         id: Date.now(),
+//         addedOn: new Date().toLocaleDateString("en-GB"),
+//         level: 3,
+//       };
+//       setProducts((prev) => [...prev, newProduct]);
+//       processedRef.current = true;
+//       navigate(".", { replace: true });
+//     }
     
     if (location.state?.updatedProduct) {
       const { updatedProduct, editIndex } = location.state;
@@ -167,6 +168,7 @@ const handleRowDragEnd = (event) => {
   if (!overNode) return;
 
   const newLevel = overNode.isLevelRow ? overNode.level : overNode.level || 1;
+  
 
   // Find indexes in the original products array
   const movedIndex = products.findIndex((p) => p.id === moved.id);
