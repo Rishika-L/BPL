@@ -71,7 +71,7 @@ const handleSubmit = (data) => {
     navigate("/users");
   };
 
-  // ✅ CASE 1: New image selected (File object)
+  //image selected 
   if (data.image && data.image instanceof FileList && data.image.length > 0) {
     const file = data.image[0];
 
@@ -82,7 +82,7 @@ const handleSubmit = (data) => {
 
     reader.readAsDataURL(file);
   } 
-  // ✅ CASE 2: Edit mode – no new image selected
+  //  Edit
   else {
     saveUser(editData?.profileImage || "");
   }

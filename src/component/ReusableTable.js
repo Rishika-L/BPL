@@ -10,7 +10,7 @@ const ReusableTable = ({
   onSelect,
   onEdit,
   onDelete,
-  showActions = true,   //  control Actions column
+  showActions = true,   
   width = "w-72",
 }) => {
   return (
@@ -25,17 +25,17 @@ const ReusableTable = ({
       <table className="w-full text-sm">
         <thead className="bg-gray-100">
           <tr>
-            {/* Checkbox */}
+           
             {selectable && <th className="w-10 text-center"></th>}
 
-            {/* Dynamic Columns */}
+            
             {columns.map((col) => (
               <th key={col.key} className="text-left px-3 py-2">
                 {col.label}
               </th>
             ))}
 
-            {/* Actions Header */}
+    
             {showActions && (
               <th className="text-left px-3 py-2">Actions</th>
             )}
@@ -68,7 +68,7 @@ const ReusableTable = ({
                     isSelected ? "bg-blue-50" : ""
                   }`}
                 >
-                  {/* Checkbox */}
+                 
 
                   {selectable&&(
                     <td className="stextt-center">
@@ -81,19 +81,13 @@ const ReusableTable = ({
                     </td>
                   )}
 
-
-
-
-                  
-
-                  {/* Data Columns */}
                   {columns.map((col) => (
                     <td key={col.key} className="px-3 py-2">
                       {item[col.key]}
                     </td>
                   ))}
 
-                  {/* Actions Column */}
+                 
                   {showActions && (
                     <td className="px-3 py-2 text-center">
                       <button

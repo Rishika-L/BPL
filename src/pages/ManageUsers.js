@@ -25,12 +25,12 @@ const ManageUsers = () => {
 
  useEffect(() => {
   const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
-  console.log(storedUsers); // 👈 check this
+  console.log(storedUsers); 
   setUsers(storedUsers);
 }, []);
 
 
-  // ================= FILTER USERS =================
+  // FILTER
   const filteredUsers = users.filter((u) => {
     return (
       (search === "" ||
@@ -43,7 +43,7 @@ const ManageUsers = () => {
     );
   });
 
-  // ================= DELETE USER =================
+  //  DELETE 
   const handleDelete = (userId) => {
   const updatedUsers = users.filter((u) => u.id !== userId);
   setUsers(updatedUsers);
@@ -63,7 +63,7 @@ const handleEdit = (user) => {
 };
 
 
-  // ================= PAGINATION =================
+  // PAGINATION 
   const totalRecords = filteredUsers.length;
   const totalPages = Math.ceil(totalRecords / perPage) || 1;
 
@@ -82,7 +82,7 @@ const handleEdit = (user) => {
     setActivePage(1);
   };
 
-  // ================= TABLE COLUMNS =================
+  // TABLE COLUMNS 
   const columnDefs = [
       {
     headerName: "Profile Image",

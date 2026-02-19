@@ -22,7 +22,7 @@ function App() {
     }
   });
 
-  // SAVE TO LOCAL STORAGE (NULL SAFE)
+  //LOCAL STORAGE 
   useEffect(() => {
     const safeUsers = users.filter(u => u && u.id);
     localStorage.setItem("users", JSON.stringify(safeUsers));
@@ -50,7 +50,14 @@ function App() {
           element={<UpdateUser users={users} setUsers={setUsers} />}
         />
 
-         <Route path="/manage-products" element={<ManageProducts />} />
+        
+        {/* Products */}
+        <Route
+          path="/manage-products" 
+          element={<ManageProducts />}
+        />
+
+        
         <Route path="/add-product" element={<AddProduct />} />
          
          

@@ -34,19 +34,19 @@ const CommonForm = ({
           : value,
     }));
 
-    // Clear error while typing
+   
     setErrors((prev) => ({
       ...prev,
       [name]: "",
     }));
   };
 
-  // VALIDATION (ALL REQUIRED except toggle)
+  // VALIDATION
   const validate = () => {
     let temp = {};
 
     fields.forEach((f) => {
-      if (f.type === "toggle") return; // skip toggle
+      if (f.type === "toggle") return; 
 
       if (!formData[f.name] || formData[f.name] === "") {
         temp[f.name] = `${f.label} is required`;

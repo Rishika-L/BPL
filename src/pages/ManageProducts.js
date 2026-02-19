@@ -31,53 +31,28 @@ const ManageProducts = () => {
   const [selectedFGCodes, setSelectedFGCodes] = useState([]);
   const [isOrganizing, setIsOrganizing] = useState(false);
 
-  // Save products
+  //  localStorage 
   useEffect(() => {
     localStorage.setItem("products", JSON.stringify(products));
-    
   }, [products]);
 
-  // Level 1 navigation state
+  //  navigation state
   useEffect(() => {
     if (processedRef.current) return;
 
     if (location.state?.newProduct) {
+      const level = location.state.newProduct.level || 1;
       const newProduct = {
         ...location.state.newProduct,
         id: Date.now(),
-        new :Date().toLocaleDateString(),
-
-        level: 1,
+        addedOn: new Date().toLocaleDateString("en-GB"), 
+        level,
       };
       setProducts((prev) => [...prev, newProduct]);
       processedRef.current = true;
       navigate(".", { replace: true });
     }
-// // Level 2
-//         if (location.state?.newProduct) {
-//       const newProduct = {
-//         ...location.state.newProduct,
-//         id: Date.now(),
-//         addedOn: new Date().toLocaleDateString("en-GB"),
-//         level: 2,
-//       };
-//       setProducts((prev) => [...prev, newProduct]);
-//       processedRef.current = true;
-//       navigate(".", { replace: true });
-//     }
-// // Level 3
-//     if (location.state?.newProduct) {
-//       const newProduct = {
-//         ...location.state.newProduct,
-//         id: Date.now(),
-//         addedOn: new Date().toLocaleDateString("en-GB"),
-//         level: 3,
-//       };
-//       setProducts((prev) => [...prev, newProduct]);
-//       processedRef.current = true;
-//       navigate(".", { replace: true });
-//     }
-    
+
     if (location.state?.updatedProduct) {
       const { updatedProduct, editIndex } = location.state;
       setProducts((prev) =>
@@ -90,14 +65,21 @@ const ManageProducts = () => {
     }
   }, [location.state, navigate]);
 
-  // Pagination
+  // Pagination 
   const totalRecords = products.length;
   const totalPages = Math.ceil(totalRecords / perPage) || 1;
   const startIndex = (activePage - 1) * perPage;
   const endIndex = startIndex + perPage;
   const paginatedProducts = products.slice(startIndex, endIndex);
 
-  // Build rowData with levels
+  // Pagination handlers
+  const handlePageChange = (page) => setActivePage(page);
+  const handlePerPageChange = (value) => {
+    setPerPage(Number(value));
+    setActivePage(1);
+  };
+
+  //  levels
   const rowData = useMemo(() => {
     const levelMap = {};
     const finalData = [];
@@ -122,12 +104,9 @@ const ManageProducts = () => {
   const startCount = totalRecords === 0 ? 0 : startIndex + 1;
   const endCount = Math.min(endIndex, totalRecords);
 
-  const handlePageChange = (page) => setActivePage(page);
-  const handlePerPageChange = (value) => {
-    setPerPage(Number(value));
-    setActivePage(1);
-  };
+  
 
+  // Edit 
   const handleEdit = useCallback(
     (row) => {
       const index = products.findIndex((p) => p.id === row.id);
@@ -135,84 +114,86 @@ const ManageProducts = () => {
     },
     [products, navigate]
   );
-
+// Delete
   const handleDelete = useCallback(
     (id) => setProducts((prev) => prev.filter((p) => p.id !== id)),
     []
   );
 
+  // FG code
   const toggleFGCode = (item) => {
     setSelectedFGCodes((prev) =>
       prev.includes(item) ? prev.filter((c) => c !== item) : [...prev, item]
     );
   };
-
+// organize save
   const handleSave = () => {
     setIsOrganizing(false);
     localStorage.setItem("products", JSON.stringify(products));
     alert("Order saved successfully!");
   };
-
+// Organize Reset
   const handleReset = () => {
     const saved = localStorage.getItem("products");
     setProducts(saved ? JSON.parse(saved) : []);
     setIsOrganizing(false);
   };
 
-// ===== DRAG & DROP =====
-const handleRowDragEnd = (event) => {
-  const moved = event.node.data;
-  if (moved.isLevelRow) return;
+  // Drag  and Drop
+  const handleRowDragEnd = (event) => {
+    const moved = event.node.data;
+    if (moved.isLevelRow) return;
 
-  const overNode = event.overNode?.data;
-  if (!overNode) return;
+    const overNode = event.overNode?.data;
+    if (!overNode) return;
 
-  const newLevel = overNode.isLevelRow ? overNode.level : overNode.level || 1;
+    const newLevel = overNode.isLevelRow ? overNode.level : overNode.level || 1;
+
+    const movedIndex = products.findIndex((p) => p.id === moved.id);
+    const overIndex = products.findIndex((p) => p.id === overNode.id);
+
+    if (movedIndex === -1 || overIndex === -1) return;
+
+    const updatedProducts = [...products];
+
+    // update draop
+    const temp = updatedProducts[overIndex];
+    updatedProducts[overIndex] = { ...updatedProducts[movedIndex], level: newLevel };
+    updatedProducts[movedIndex] = temp;
+
+    setProducts(updatedProducts);
+  };
+
+  // Column 
   
-
-  // Find indexes in the original products array
-  const movedIndex = products.findIndex((p) => p.id === moved.id);
-  const overIndex = products.findIndex((p) => p.id === overNode.id);
-
-  if (movedIndex === -1 || overIndex === -1) return;
-
-  const updatedProducts = [...products];
-
-  // Swap positions & update level
-  const temp = updatedProducts[overIndex];
-  updatedProducts[overIndex] = { ...updatedProducts[movedIndex], level: newLevel };
-  updatedProducts[movedIndex] = temp;
-
-  setProducts(updatedProducts);
-};
-
-
-  // Column definitions
   const columnDefs = useMemo(
     () => [
       isOrganizing && {
         headerName: "",
         field: "drag",
         width: 40,
-       rowDrag: (params) => !params.data?.isLevelRow
-
+        rowDrag: (params) => !params.data?.isLevelRow,
       },
-
-      { headerName: "S.No", field: "sNo", width: 90, cellRenderer: (params) => (params.data?.isLevelRow ? "" : params.value) },
-
+      {
+        headerName: "S.No",
+        field: "sNo",
+        width: 90,
+        cellRenderer: (params) => (params.data?.isLevelRow ? "" : params.value),
+      },
       {
         headerName: "Product Name",
         field: "productName",
         flex: 1.5,
         cellRenderer: (params) =>
           params.data?.isLevelRow ? (
-            <div className="w-full text-center font-semibold py-2">{params.data.levelLabel}</div>
+            <div className="w-full text-center font-semibold py-2">
+              {params.data.levelLabel}
+            </div>
           ) : (
             params.value
           ),
         colSpan: (params) => (params.data?.isLevelRow ? 9 : 1),
       },
-
       { headerName: "Code", field: "code", flex: 1 },
 
       { headerName: "FG Code", field: "fgCode", flex: 1 },
@@ -230,12 +211,16 @@ const handleRowDragEnd = (event) => {
         cellRenderer: (params) =>
           params.data?.isLevelRow ? null : (
             <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${params.value ? "bg-green-500" : "bg-red-500"}`} />
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  params.value ? "bg-green-500" : "bg-red-500"
+                }`}
+              />
               <span>{params.value ? "Active" : "Inactive"}</span>
             </div>
           ),
       },
-
+      
       {
         headerName: "Action",
         width: 100,
@@ -247,14 +232,30 @@ const handleRowDragEnd = (event) => {
                 <EllipsisVerticalIcon className="w-5 h-5 text-gray-600" />
               </Menu.Button>
               <Menu.Items className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-lg z-50">
-                <Menu.Item>{({ active }) => 
-                  <button onClick={() => handleEdit(params.data)}
-                   className={`${active ? "bg-gray-100" : ""} block w-full px-4 py-2 text-sm text-blue-600`}>Edit</button>}
-                   </Menu.Item>
-                <Menu.Item>{({ active }) => 
-                  <button onClick={() => handleDelete(params.data.id)} 
-                  className={`${active ? "bg-gray-100" : ""} block w-full px-4 py-2 text-sm text-red-600`}>Delete</button>}
-                  </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      onClick={() => handleEdit(params.data)}
+                      className={`${
+                        active ? "bg-gray-100" : ""
+                      } block w-full px-4 py-2 text-sm text-blue-600`}
+                    >
+                      Edit
+                    </button>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      onClick={() => handleDelete(params.data.id)}
+                      className={`${
+                        active ? "bg-gray-100" : ""
+                      } block w-full px-4 py-2 text-sm text-red-600`}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </Menu.Item>
               </Menu.Items>
             </Menu>
           );
@@ -264,20 +265,34 @@ const handleRowDragEnd = (event) => {
     [isOrganizing, handleEdit, handleDelete]
   );
 
-
-
   return (
     <>
       <Navbar />
       <div className="flex">
         <Sidebar />
         <div className="flex-1 p-6 bg-gray-50 min-h-screen">
-          <h1 className="text-xl font-semibold text-[#272757] mt-16 mb-6">Manage Products</h1>
+          <h1 className="text-xl font-semibold text-[#272757] mt-16 mb-6">
+            Manage Products
+          </h1>
 
           <div className="flex gap-6 border-b mt-8">
-            {[{ id: "productMaster", label: "Product Master" }, { id: "products", label: "Products" }, { id: "type", label: "Type" }, { id: "uploadHistory", label: "Upload History" }].map((tab) => (
-              <button key={tab.id} onClick={() => setActiveMainTab(tab.id)}
-                className={`pb-2 ${activeMainTab === tab.id ? "border-b-2 border-[#272757] text-[#272757]" : "text-gray-500"}`}>{tab.label}</button>
+            {[
+              { id: "productMaster", label: "Product Master" },
+              { id: "products", label: "Products" },
+              { id: "type", label: "Type" },
+              { id: "uploadHistory", label: "Upload History" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveMainTab(tab.id)}
+                className={`pb-2 ${
+                  activeMainTab === tab.id
+                    ? "border-b-2 border-[#272757] text-[#272757]"
+                    : "text-gray-500"
+                }`}
+              >
+                {tab.label}
+              </button>
             ))}
           </div>
 
@@ -295,41 +310,83 @@ const handleRowDragEnd = (event) => {
             <div className="flex-1 bg-white rounded p-6 shadow">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex gap-6 border-b items-center">
-                  <button onClick={() =>
-                     setActiveSubTab("products")} className={`pb-2 ${activeSubTab === "products" ? "border-b-2 border-black" : "text-gray-500"}`}>Products</button>
-                  <button onClick={() => setActiveSubTab("fgInfo")} className={`pb-2 ${activeSubTab === "fgInfo" ? "border-b-2 border-black" : "text-gray-500"}`}>FG Info</button>
-                  <button onClick={() => setIsOrganizing(!isOrganizing)} className={`pb-2 ${isOrganizing ? "border-b-2 border-black" : "text-gray-500"}`}>Organize</button>
+                  <button
+                    onClick={() => setActiveSubTab("products")}
+                    className={`pb-2 ${
+                      activeSubTab === "products"
+                        ? "border-b-2 border-black"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    Products
+                  </button>
+                  <button
+                    onClick={() => setActiveSubTab("fgInfo")}
+                    className={`pb-2 ${
+                      activeSubTab === "fgInfo"
+                        ? "border-b-2 border-black"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    FG Info
+                  </button>
+                  <button
+                    onClick={() => setIsOrganizing(!isOrganizing)}
+                    className={`pb-2 ${
+                      isOrganizing ? "border-b-2 border-black" : "text-gray-500"
+                    }`}
+                  >
+                    Organize
+                  </button>
 
-                  {isOrganizing && <div className="flex gap-3 ml-4">
-                    <button onClick={handleSave} className="bg-green-600 text-white px-4 py-1 rounded text-sm">Save</button>
-                    <button onClick={handleReset} className="bg-red-500 text-white px-4 py-1 rounded text-sm">Reset</button>
-                  </div>}
+                  {isOrganizing && (
+                    <div className="flex gap-3 ml-4">
+                      <button
+                        onClick={handleSave}
+                        className="bg-green-600 text-white px-4 py-1 rounded text-sm"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={handleReset}
+                        className="bg-red-500 text-white px-4 py-1 rounded text-sm"
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-3">
-                  <button className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm">Download Excel</button>
-                  <button className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm">Upload</button>
-                  <button onClick={() => navigate("/add-product")} className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm">Add Product</button>
+                  <button className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm">
+                    Download Excel
+                  </button>
+                  <button className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm">
+                    Upload
+                  </button>
+                  <button
+                    onClick={() => navigate("/add-product")}
+                    className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm"
+                  >
+                    Add Product
+                  </button>
                 </div>
               </div>
 
               <AgTable
-              //data pass
                 rowData={rowData}
-                //table
                 columnDefs={columnDefs}
-                //pagination
                 activePage={activePage}
                 handlePageChange={handlePageChange}
                 pagination={true}
-                paginationData={{ 
+                paginationData={{
                   total_page: totalPages,
-                   per_page: perPage, 
-                   total_count: totalRecords, 
-                   from: startCount,
-                    to: endCount }}
+                  per_page: perPage,
+                  total_count: totalRecords,
+                  from: startCount,
+                  to: endCount,
+                }}
                 onPerPageChange={handlePerPageChange}
-                // drag and drop
                 onRowDragEnd={handleRowDragEnd}
               />
             </div>
