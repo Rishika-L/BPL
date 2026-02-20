@@ -113,6 +113,7 @@ const AddProduct = () => {
                 productType: "",
                 traceability: "",
                 status: true,
+                
               }
             }
             onSubmit={handleSubmit}

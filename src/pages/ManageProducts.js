@@ -92,7 +92,7 @@ const ManageProducts = () => {
     Object.keys(levelMap)
       .sort((a, b) => a - b)
       .forEach((level) => {
-        finalData.push({ isLevelRow: true, levelLabel: `Level ${level}`, level });
+        finalData.push({ isLevelRow: true, levelLabel: ` ${level}` });
         levelMap[level].forEach((item, idx) => {
           finalData.push({ ...item, sNo: startIndex + idx + 1 });
         });

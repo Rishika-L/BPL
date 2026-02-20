@@ -82,6 +82,8 @@ const handleEdit = (user) => {
     setActivePage(1);
   };
 
+
+  
   // TABLE COLUMNS 
   const columnDefs = [
       {
