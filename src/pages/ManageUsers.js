@@ -208,7 +208,7 @@ const handleEdit = (user) => {
             Manage Users
           </h2>
 
-<div className="flex gap-6 border-b mt-6">
+<div className="flex gap-8 border-b border-gray-300 mt-6">
   {[
     { id: "users", label: "Users" },
     { id: "groups", label: "Groups" },
@@ -216,9 +216,9 @@ const handleEdit = (user) => {
     <button
       key={tab.id}
       onClick={() => setActiveUserTab(tab.id)}
-      className={`pb-2 text-sm font-medium ${
+      className={`pb-3 text-lg font-semibold transition-all ${
         activeUserTab === tab.id
-          ? "border-b-2 border-[#272757] text-[#272757]"
+          ? "border-b-2 border-gray-400 text-[#272757]"
           : "text-gray-500 hover:text-[#272757]"
       }`}
     >

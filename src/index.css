@@ -1,3 +1,96 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+:root {
+  --ag-checkbox-checked-color: #f3f3f3 !important;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Roboto", serif;
+}
+
+body {
+  @apply bg-secondary-200;
+}
+
+/* Buttons */
+.primary__btn {
+  @apply text-white bg-primary-400 border-primary-400;
+}
+.primary__btn:hover {
+  @apply text-white bg-primary-800 border-primary-800;
+}
+
+.secondary__btn {
+  @apply text-primary-400 bg-white border-primary-400;
+}
+.secondary__btn:hover {
+  @apply text-primary-400 bg-secondary-400 border-primary-400;
+}
+
+.error_btn {
+  @apply bg-error text-white border border-error;
+}
+.success_btn {
+  @apply bg-success text-white border-success;
+}
+
+/* CHECK BOX */
+
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  cursor: pointer;
+  height: 16px;
+  position: relative;
+  width: 16px;
+}
+
+/* 
+.user-layout__container{
+  height: calc(100% -100px);
+} */
+
+/* .css-z2hyoe-ItemComponent.react-dropdown-select-item-selected{
+  background: #3B8524 !important;
+} */
+
+.react-dropdown-select-option {
+  background: #3b8524 !important;
+}
+
+/* .bg-red-custom {
+    @apply bg-red-100 text-red-900;
+  }
+  
+  .bg-green-custom {
+    @apply bg-green-100 text-green-900;
+  }
+   */
+
+.bg-red-custom {
+  background-color: #f4acac; /* Equivalent to bg-red-100 */
+  color: #ffffff; /* White text */
+}
+
+.bg-green-custom {
+  background-color: #bbf5d7; /* Equivalent to bg-green-100 */
+  color: #393434; /* White text */
+}
+
+.css-6sxacw-ReactDropdownSelect {
+  opacity: 0.8 !important;
+  color: #000;
+  background-color: transparent !important;
+}
+
+
+:root {
+  --rt-opacity: 0.9 !important;
+}

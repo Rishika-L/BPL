@@ -53,7 +53,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="w-16 bg-white border-r mt-14 h-[calc(100vh-56px)] sticky top-10 flex flex-col items-center space-y-6 py-6">
+    <div className="w-16 bg-white border-gray-700 mt-14 h-[calc(100vh-56px)] sticky top-10 flex flex-col items-center space-y-6 py-6">
       {menuItems.map((item) => {
         const isActive = item.path && location.pathname.startsWith(item.path);
 

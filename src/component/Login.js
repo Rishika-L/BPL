@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import login from "../images/login.png";
 import loginlogo from "../images/login logo.png";
+import { ArrowRight } from "lucide-react";
+import Toast from "../Components/Toast/Toast";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -11,7 +13,11 @@ const Login = () => {
     password: "",
   });
 
- 
+  const [toast, setToast] = useState({
+    show: false,
+     message: "",
+     type: "success",
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,55 +32,78 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    
-
-    const response = await fetch(
-      "http://127.0.0.1:8000/api/login",
-      {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({
- username  : form.username,
+          username: form.username,
           password: form.password,
-          login_type: "1" 
+          login_type: "1",
         }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === "success") {
+        setToast(prev => ({
+          ...prev,
+          show: true,
+          message: "Login Successful",
+          type: "success",
+        }));
+
+        setTimeout(() => {
+          navigate("/users");
+        }, 3000);
+
+      } 
+      else {
+        setToast(prev => ({
+          ...prev,
+          show: true,
+         message: data.error || "Invalid User",
+          type: "error",
+        }));
       }
-    );
-
-    const data = await response.json();
-
-    if (response.ok && data.status === "success") {
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      alert("Login Successful");
-      navigate("/users");
-    } else {
-      alert(data.error || "User is not Valid")
+    } 
+    catch (error) {
+      setToast(prev => ({
+        ...prev,
+        show: true,
+        message: "Server Error",
+        type: "error",
+      }));
     }
+  };
 
-  } catch (error) {
-    console.error("Login Error:", error);
-    alert("Server Error");
-  } 
-};
   return (
-    <div className="w-screen h-screen flex bg-white overflow-hidden">
-      
-      {/* LEFT SIDE */}
+    <div className="w-screen h-screen flex bg-white overflow-hidden relative">
+
+  {toast.show && toast.message && (
+  <Toast
+    show={true}
+    message={toast.message}
+    type={toast.type}
+    onClose={() =>
+      setToast(prev => ({ ...prev, show: false, message: "" }))
+    }
+  />
+)}
+
+     
       <div className="w-full md:w-1/3 flex items-center justify-center">
         <div className="w-full max-w-sm px-6">
+
           <img
             src={loginlogo}
             alt="logo"
-            className="w-80 h-50 object-contain mt-20"
+            className="w-80 object-contain mt-20"
           />
 
           <h2 className="text-2xl font-bold text-[#272757] mt-10">
@@ -82,11 +111,11 @@ const Login = () => {
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-5 mt-8">
-            
-            {/* USER ID */}
+
+         
             <div>
-              <label className="block text-sm font-semibold text-[#272757] mb-3">
-                Username
+              <label className="block size-14px font-semibold text-[#272757] mb-3">
+                User ID
               </label>
               <input
                 type="text"
@@ -94,16 +123,13 @@ const Login = () => {
                 placeholder="Enter User ID"
                 value={form.username}
                 onChange={handleChange}
-                inputMode="numeric"
-                pattern="[0-9]*"
-                className="w-full border border-gray-300 rounded px-3 py-2
-                           focus:outline-none focus:ring-2 focus:ring-indigo-700"
+                className="w-full border  border-[#D5D5EC] size-12px text-[#A9A9BC] rounded-md px-3 py-2 pl-4 "
               />
             </div>
 
-            {/* PASSWORD */}
+            
             <div>
-              <label className="block text-sm font-semibold text-[#272757] mb-3">
+              <label className="block size-14px font-semibold text-[#272757] mb-3">
                 Password
               </label>
               <input
@@ -112,41 +138,44 @@ const Login = () => {
                 placeholder="Enter Password"
                 value={form.password}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded px-3 py-2
-                           focus:outline-none focus:ring-2 focus:ring-indigo-700"
+                className="w-full border border-[#D5D5EC] size-12px text-[#A9A9BC] rounded-md px-3 py-2 pl-4 "
               />
             </div>
 
-            <div className="text-right text-sm text-[#272757] cursor-pointer underline">
+            <div className="text-right size-14px  text-[#272757] cursor-pointer underline">
               Forgot Password?
             </div>
 
-           <button
-  type="submit"
-  className="w-full bg-indigo-900 text-white py-3 rounded hover:bg-indigo-800 transition"
->
-  Login
-</button>
-            <div className="pt-20 text-sm text-[#686889] text-center">
-              <span className="cursor-pointer hover:underline">About Us</span>
-              <span className="mx-2">|</span>
-              <span className="cursor-pointer hover:underline">
-                Terms of Service
-              </span>
-              <span className="mx-2">|</span>
-              <span className="cursor-pointer hover:underline">
-                Privacy Notice
-              </span>
+          
+            <div className="flex justify-center">
+              <button
+                type="submit"
+                className="w-[350px] h-[45px] bg-[#3F3F8D] text-white size-12px py-3 rounded-md
+                           hover:bg-[#3e3e85] transition duration-300
+                           font-semibold "
+              >
+                Login
+              </button>
             </div>
+
+            <div className="flex items-center justify-center size-14px text-[#272757] font-Roboto cursor-pointer underline">
+              <span>Go to Technician Login</span>
+              <ArrowRight className="ml-1 w-5 h-5" />
+            </div>
+
+            <div className="pt-20 size-12px text-[#686889] text-center">
+              About Us  |  Terms of Service  |  Privacy Notice
+            </div>
+
           </form>
         </div>
       </div>
 
-      {/* RIGHT SIDE IMAGE */}
+      
       <div className="w-3/4 hidden sm:flex">
         <img
           src={login}
-          alt="login visual"
+          alt="login "
           className="w-full h-full object-cover"
         />
       </div>

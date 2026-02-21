@@ -142,7 +142,7 @@
   background-color: #3cefff;
   border-radius: 50%;
   animation: fade 1.5s alternate ease-in-out infinite;
-  @apply bg-blue-800;
+  /* @apply bg-blue-800; */
 }
 
 .dots > div:nth-of-type(2),
