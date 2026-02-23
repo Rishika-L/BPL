@@ -27,6 +27,66 @@ const ManageUsers = () => {
     setUsers(storedUsers);
   }, []);
 
+ useEffect(() => {
+  fetchUsers();
+}, []);
+
+
+const fetchUsers = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/user-list",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          status: 1,
+          gender: "ALL",
+          type: "ALL",
+          per_page: 20,
+        }),
+      }
+    );
+
+ 
+    const result = await response.json();
+
+    if (response.ok) {
+      const usersData = result.data.data;
+
+      //map in the feilds
+      const formattedUsers = usersData.map((user) => ({
+        id: user.user_id,
+        uuid: user.id,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        gender: user.gender,
+        phone: user.phone,
+        email: user.email,
+        group: user.group_name,
+        role: user.role_name,
+        createdOn: user.created_on,
+        profileImage: user.user_image,
+        status: user.status === 1, 
+      }));
+
+      setUsers(formattedUsers);
+      localStorage.setItem("users", JSON.stringify(formattedUsers));
+    } else {
+      console.log(result.message);
+    }
+  } catch (error) {
+    console.log("Error:", error);
+  }
+};
+
+
 //filter
   const filteredUsers = useMemo(() => {
     return users.filter((u) => {

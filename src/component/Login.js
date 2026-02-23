@@ -30,57 +30,64 @@ const Login = () => {
       setForm({ ...form, [name]: value });
     }
   };
-
+//login API
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          username: form.username,
-          password: form.password,
-          login_type: "1",
-        }),
-      });
+  try {
+    const response = await fetch("http://127.0.0.1:8000/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        username: form.username,
+        password: form.password,
+        login_type: "1",
+      }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (response.ok && data.status === "success") {
-        setToast(prev => ({
-          ...prev,
-          show: true,
-          message: "Login Successful",
-          type: "success",
-        }));
+   if (response.ok && data.status === "success") {
 
-        setTimeout(() => {
-          navigate("/users");
-        }, 3000);
 
-      } 
-      else {
-        setToast(prev => ({
-          ...prev,
-          show: true,
-         message: data.error || "Invalid User",
-          type: "error",
-        }));
-      }
-    } 
-    catch (error) {
-      setToast(prev => ({
-        ...prev,
+  localStorage.setItem("token", data.bearer_token);
+
+  // Save user if available
+  if (data.user) {
+    localStorage.setItem("user", JSON.stringify(data.user));
+  }
+
+  console.log("Saved Token:", data.bearer_token);
+
+  setToast({
+    show: true,
+    message: "Login Successful",
+    type: "success",
+  });
+
+  setTimeout(() => {
+    navigate("/users");
+  }, 1500);
+}
+
+     else {
+      setToast({
         show: true,
-        message: "Server Error",
+        message: data.message || "Invalid Credentials",
         type: "error",
-      }));
+      });
     }
-  };
+  } catch (error) {
+    setToast({
+      show: true,
+      message: "Server Error",
+      type: "error",
+    });
+  }
+};
 
   return (
     <div className="w-screen h-screen flex bg-white overflow-hidden relative">
