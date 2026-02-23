@@ -20,7 +20,7 @@ const CommonForm = ({
 
   const [errors, setErrors] = useState({});
 
-  // HANDLE CHANGE
+  //HANDLE CHANGE 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
 
@@ -34,7 +34,6 @@ const CommonForm = ({
           : value,
     }));
 
-   
     setErrors((prev) => ({
       ...prev,
       [name]: "",
@@ -46,7 +45,7 @@ const CommonForm = ({
     let temp = {};
 
     fields.forEach((f) => {
-      if (f.type === "toggle") return; 
+      if (f.type === "toggle") return;
 
       if (!formData[f.name] || formData[f.name] === "") {
         temp[f.name] = `${f.label} is required`;
@@ -59,32 +58,40 @@ const CommonForm = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validate()) {
-      onSubmit(formData);
-    }
+    if (validate()) onSubmit(formData);
   };
 
   return (
-    <div className="max-w-3xl">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-[#f7f8fc] p-8 rounded-lg grid grid-cols-2 gap-x-8 gap-y-6"
-      >
+    <div className="w-full bg-[#F7F8FC] min-h-screen -px-5 py-8">
+
+      {/* HEADER */}
+      <div className="mb-5 -pt-10 text-[#272757]">
         {title && (
-          <h2 className="col-span-2 text-lg font-semibold text-[#272757]">
+          <h2 className="text-2xl font-semibold text-[#272757]">
             {title}
           </h2>
         )}
 
+        
+        <div className="border-b border-[#D5D5EC] mb-1"></div>
+      </div>
+
+      {/* FORM */}
+      <form
+        onSubmit={handleSubmit}
+        className="max-w-4xl grid grid-cols-2 gap-x-12 gap-y-6"
+      >
         {fields.map((field) => (
           <div
             key={field.name}
             className={field.fullWidth ? "col-span-2" : "col-span-1"}
           >
             {/* LABEL */}
-            <label className="block text-sm font-medium text-[#272757] mb-1">
+            <label className="block size-14px font-medium text-[#272757] mb-2">
               {field.label}
-              <span className="text-red-500"> *</span>
+              {field.required && (
+                <span className="text-red-500"> *</span>
+              )}
             </label>
 
             {/* SELECT */}
@@ -93,21 +100,15 @@ const CommonForm = ({
                 name={field.name}
                 value={formData[field.name] || ""}
                 onChange={handleChange}
-                className={`w-full h-11 border rounded px-3 text-sm bg-white ${
-                  errors[field.name]
-                    ? "border-red-500"
-                    : "border-gray-300"
-                } ${
-                  !formData[field.name]
-                    ? "text-gray-400"
-                    : "text-[#272757]"
+                className={`w-full h-11 border rounded-md px-3 size-14px  bg-white border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
+                  errors[field.name] ? "border-red-500" : ""
                 }`}
               >
                 <option value="" disabled>
                   {field.placeholder || `Select ${field.label}`}
                 </option>
                 {field.options?.map((opt) => (
-                  <option key={opt} value={opt} className="text-[#272757]">
+                  <option key={opt} value={opt}>
                     {opt}
                   </option>
                 ))}
@@ -121,10 +122,8 @@ const CommonForm = ({
                 name={field.name}
                 value={formData[field.name] || ""}
                 onChange={handleChange}
-                className={`w-full h-11 border rounded px-3 text-sm ${
-                  errors[field.name]
-                    ? "border-red-500"
-                    : "border-gray-300"
+                className={`w-full h-11 border rounded-md px-3 size-14px text-[#A9A9BC] border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
+                  errors[field.name] ? "border-red-500" : ""
                 }`}
               />
             )}
@@ -139,56 +138,56 @@ const CommonForm = ({
                       [field.name]: !prev[field.name],
                     }))
                   }
-                  className={`w-11 h-6 flex items-center rounded-full p-1 cursor-pointer transition-all duration-300 ${
+                  className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition duration-300 ${
                     formData[field.name]
                       ? "bg-[#39AA16]"
                       : "bg-gray-300"
                   }`}
                 >
                   <div
-                    className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-all duration-300 ${
+                    className={`bg-white w-5 h-5 rounded-full shadow-md transform transition duration-300 ${
                       formData[field.name]
-                        ? "translate-x-4"
+                        ? "translate-x-6"
                         : "translate-x-0"
                     }`}
                   />
                 </div>
 
                 <span className="text-sm text-[#272757]">
-                  {formData[field.name] ? "Active" : "Inactive"}
+                  {formData[field.name] ? "Active" : "In Active"}
                 </span>
               </div>
             )}
 
             {/* FILE */}
             {field.type === "file" && (
-              <>
-                <label
-                  className={`bg-[#e4e5f2] rounded p-3 w-80 flex items-center gap-3 cursor-pointer ${
-                    errors[field.name] ? "border border-red-500" : ""
-                  }`}
-                >
-                  <img
-                    src={uploadIcon}
-                    alt="upload"
-                    className="w-4 h-4"
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-[#272757]">
-                      {field.placeholder || "Upload file"}
-                    </p>
-                    <p className="text-[10px] text-gray-500">
-                      JPG / PNG · &lt; 1MB
-                    </p>
-                  </div>
-                  <input
-                    type="file"
-                    name={field.name}
-                    onChange={handleChange}
-                    className="hidden"
-                  />
-                </label>
-              </>
+              <label
+                className={`bg-[#E9EAF5] border border-[#D5D5EC] rounded-md p-4 w-full flex items-center gap-3 cursor-pointer ${
+                  errors[field.name] ? "border-red-500" : ""
+                }`}
+              >
+                <img
+                  src={uploadIcon}
+                  alt="upload"
+                  className="w-5 h-5"
+                />
+                <div>
+                  <p className="text-sm font-medium text-[#272757]">
+                    Add Profile Image
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Image size should be less than 1MB.
+                    Only jpg, jpeg, png allowed.
+                  </p>
+                </div>
+
+                <input
+                  type="file"
+                  name={field.name}
+                  onChange={handleChange}
+                  className="hidden"
+                />
+              </label>
             )}
 
             {/* INPUT */}
@@ -203,10 +202,8 @@ const CommonForm = ({
                 placeholder={
                   field.placeholder || `Enter ${field.label}`
                 }
-                className={`w-full h-11 border rounded px-3 text-sm ${
-                  errors[field.name]
-                    ? "border-red-500"
-                    : "border-gray-300"
+                className={`w-full h-11 border rounded-md px-3 size-14px border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
+                  errors[field.name] ? "border-red-500" : ""
                 }`}
               />
             )}
@@ -220,13 +217,11 @@ const CommonForm = ({
           </div>
         ))}
 
-        
-
         {/* BUTTONS */}
-        <div className="col-span-2 flex gap-4 mt-6">
+        <div className="col-span-2 flex gap-6 mt-8">
           <button
             type="submit"
-            className="bg-[#3f3d8f] text-white px-10 py-2 rounded"
+            className="bg-[#3F3D8F] text-white px-12 py-2 rounded-md hover:bg-[#2f2d6f] transition"
           >
             {submitLabel}
           </button>
@@ -234,7 +229,7 @@ const CommonForm = ({
           <button
             type="button"
             onClick={onCancel}
-            className="border border-[#3f3d8f] text-[#3f3d8f] px-10 py-2 rounded"
+            className="border border-[#3F3D8F] text-[#3F3D8F] px-12 py-2 rounded-md hover:bg-[#F0F1FA] transition"
           >
             Cancel
           </button>
