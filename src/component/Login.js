@@ -55,7 +55,7 @@ const Login = () => {
 
   localStorage.setItem("token", data.bearer_token);
 
-  // Save user if available
+  // Save user 
   if (data.user) {
     localStorage.setItem("user", JSON.stringify(data.user));
   }
@@ -70,7 +70,7 @@ const Login = () => {
 
   setTimeout(() => {
     navigate("/users");
-  }, 1500);
+  }, 1000);
 }
 
      else {

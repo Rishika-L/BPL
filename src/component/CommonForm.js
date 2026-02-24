@@ -1,6 +1,6 @@
 // src/component/CommonForm.jsx
 import React, { useState } from "react";
-import uploadIcon from "../images/Union.png";
+// import uploadIcon from "../images/Union.png";
 
 const CommonForm = ({
   title,
@@ -8,47 +8,51 @@ const CommonForm = ({
   initialData = {},
   onSubmit,
   onCancel,
-  submitLabel = "Create",
 }) => {
   const [formData, setFormData] = useState(() => {
     const data = {};
     fields.forEach((f) => {
-      data[f.name] = initialData[f.name] ?? "";
+      data[f.name] =
+        initialData[f.name] ??
+        (f.type === "toggle" ? false : "");
     });
     return data;
   });
 
   const [errors, setErrors] = useState({});
 
-  //HANDLE CHANGE 
-  const handleChange = (e) => {
-    const { name, value, type, checked, files } = e.target;
+ 
+ const handleChange = (e) => {
+  const { name, value, type, checked, files } = e.target;
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]:
-        type === "checkbox"
-          ? checked
-          : type === "file"
-          ? files[0]
-          : value,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [name]: "",
-    }));
-  };
-
-  // VALIDATION
+  setFormData((prev) => ({
+    ...prev,
+    [name]:
+      type === "checkbox"
+        ? checked
+        : type === "file"
+        ? files[0]  
+        : value,
+  }));
+};
+  
+//validation
   const validate = () => {
     let temp = {};
 
     fields.forEach((f) => {
-      if (f.type === "toggle") return;
-
-      if (!formData[f.name] || formData[f.name] === "") {
-        temp[f.name] = `${f.label} is required`;
+      if (f.required) {
+        if (
+          f.type === "file" &&
+          !formData[f.name]
+        ) {
+          temp[f.name] = `${f.label} is required`;
+        } else if (
+          f.type !== "file" &&
+          !formData[f.name]
+        ) {
+          temp[f.name] = `${f.label} is required`;
+        }
       }
     });
 
@@ -56,24 +60,24 @@ const CommonForm = ({
     return Object.keys(temp).length === 0;
   };
 
+ //submit
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validate()) onSubmit(formData);
+    if (validate()) {
+      onSubmit(formData);
+    }
   };
 
   return (
-    <div className="w-full bg-[#F7F8FC] min-h-screen -px-5 py-8">
-
+    <div className="w-full bg-[#F7F8FC] min-h-screen px-6 py-8">
       {/* HEADER */}
-      <div className="mb-5 -pt-10 text-[#272757]">
+      <div className="mb-6">
         {title && (
           <h2 className="text-2xl font-semibold text-[#272757]">
             {title}
           </h2>
         )}
-
-        
-        <div className="border-b border-[#D5D5EC] mb-1"></div>
+        <div className="border-b border-[#D5D5EC] mt-2"></div>
       </div>
 
       {/* FORM */}
@@ -84,13 +88,20 @@ const CommonForm = ({
         {fields.map((field) => (
           <div
             key={field.name}
-            className={field.fullWidth ? "col-span-2" : "col-span-1"}
+            className={
+              field.fullWidth
+                ? "col-span-2"
+                : "col-span-1"
+            }
           >
             {/* LABEL */}
-            <label className="block size-14px font-medium text-[#272757] mb-2">
+            <label className="block text-sm font-medium text-[#272757] mb-2">
               {field.label}
               {field.required && (
-                <span className="text-red-500"> *</span>
+                <span className="text-red-500">
+                  {" "}
+                  *
+                </span>
               )}
             </label>
 
@@ -100,12 +111,15 @@ const CommonForm = ({
                 name={field.name}
                 value={formData[field.name] || ""}
                 onChange={handleChange}
-                className={`w-full h-11 border rounded-md px-3 size-14px  bg-white border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
-                  errors[field.name] ? "border-red-500" : ""
+                className={`w-full h-11 border rounded-md px-3 bg-white border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
+                  errors[field.name]
+                    ? "border-red-500"
+                    : ""
                 }`}
               >
                 <option value="" disabled>
-                  {field.placeholder || `Select ${field.label}`}
+                  {field.placeholder ||
+                    `Select ${field.label}`}
                 </option>
                 {field.options?.map((opt) => (
                   <option key={opt} value={opt}>
@@ -122,8 +136,10 @@ const CommonForm = ({
                 name={field.name}
                 value={formData[field.name] || ""}
                 onChange={handleChange}
-                className={`w-full h-11 border rounded-md px-3 size-14px text-[#A9A9BC] border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
-                  errors[field.name] ? "border-red-500" : ""
+                className={`w-full h-11 border rounded-md px-3 border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
+                  errors[field.name]
+                    ? "border-red-500"
+                    : ""
                 }`}
               />
             )}
@@ -135,7 +151,8 @@ const CommonForm = ({
                   onClick={() =>
                     setFormData((prev) => ({
                       ...prev,
-                      [field.name]: !prev[field.name],
+                      [field.name]:
+                        !prev[field.name],
                     }))
                   }
                   className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition duration-300 ${
@@ -154,7 +171,9 @@ const CommonForm = ({
                 </div>
 
                 <span className="text-sm text-[#272757]">
-                  {formData[field.name] ? "Active" : "In Active"}
+                  {formData[field.name]
+                    ? "Active"
+                    : "Inactive"}
                 </span>
               </div>
             )}
@@ -163,14 +182,18 @@ const CommonForm = ({
             {field.type === "file" && (
               <label
                 className={`bg-[#E9EAF5] border border-[#D5D5EC] rounded-md p-4 w-full flex items-center gap-3 cursor-pointer ${
-                  errors[field.name] ? "border-red-500" : ""
+                  errors[field.name]
+                    ? "border-red-500"
+                    : ""
                 }`}
               >
-                <img
-                  src={uploadIcon}
-                  alt="upload"
-                  className="w-5 h-5"
-                />
+                {formData.image && (
+  <img
+    src={URL.createObjectURL(formData.image)}
+    alt="Preview"
+    className="w-24 h-24 mt-2 rounded"
+  />
+)}
                 <div>
                   <p className="text-sm font-medium text-[#272757]">
                     Add Profile Image
@@ -181,29 +204,39 @@ const CommonForm = ({
                   </p>
                 </div>
 
-                <input
-                  type="file"
-                  name={field.name}
-                  onChange={handleChange}
-                  className="hidden"
-                />
+               {field.type === "file" && (
+  <input
+    type="file"
+    name={field.name}
+    accept="image/*"
+    onChange={handleChange}
+  />
+)}
               </label>
             )}
 
-            {/* INPUT */}
-            {!["select", "date", "toggle", "file"].includes(
-              field.type
-            ) && (
+
+
+            {/* DEFAULT INPUT */}
+            {![
+              "select",
+              "date",
+              "toggle",
+              "file",
+            ].includes(field.type) && (
               <input
                 type={field.type || "text"}
                 name={field.name}
                 value={formData[field.name] || ""}
                 onChange={handleChange}
                 placeholder={
-                  field.placeholder || `Enter ${field.label}`
+                  field.placeholder ||
+                  `Enter ${field.label}`
                 }
-                className={`w-full h-11 border rounded-md px-3 size-14px border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
-                  errors[field.name] ? "border-red-500" : ""
+                className={`w-full h-11 border rounded-md px-3 border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
+                  errors[field.name]
+                    ? "border-red-500"
+                    : ""
                 }`}
               />
             )}
@@ -217,24 +250,27 @@ const CommonForm = ({
           </div>
         ))}
 
-        {/* BUTTONS */}
-        <div className="col-span-2 flex gap-6 mt-8">
-          <button
-            type="submit"
-            className="bg-[#3F3D8F] text-white px-12 py-2 rounded-md hover:bg-[#2f2d6f] transition"
-          >
-            {submitLabel}
-          </button>
+       {/* BUTTONS */}
+<div className="col-span-2 flex gap-6 mt-8">
+  <button
+    type="submit"
+    onClick={onSubmit}
+    className="bg-[#3F3D8F] text-white px-12 py-2 rounded-md hover:bg-[#2f2d6f] transition"
+  >
+    
+    submit
+  </button>
 
-          <button
-            type="button"
-            onClick={onCancel}
-            className="border border-[#3F3D8F] text-[#3F3D8F] px-12 py-2 rounded-md hover:bg-[#F0F1FA] transition"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+  <button
+    type="button"
+    onClick={onCancel}
+    className="border border-[#3F3D8F] text-[#3F3D8F] px-12 py-2 rounded-md hover:bg-[#F0F1FA] transition"
+  >
+    Cancel
+  </button>
+</div>
+</form>
+       
     </div>
   );
 };

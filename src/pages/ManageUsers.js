@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
+import CommonForm from "../component/CommonForm";
 import TopBarActions from "../component/TopBarActions";
 import AgTable from "../Components/Table/AgTable";
 import { Menu } from "@headlessui/react";
@@ -12,7 +13,10 @@ const ManageUsers = () => {
 
   const [users, setUsers] = useState([]);
   const [activeUserTab, setActiveUserTab] = useState("users");
+  //create form
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
+ 
   const [search, setSearch] = useState("");
   const [gender, setGender] = useState("ALL");
   const [role, setRole] = useState("ALL");
@@ -21,71 +25,181 @@ const ManageUsers = () => {
   const [activePage, setActivePage] = useState(1);
   const [perPage, setPerPage] = useState(25);
 
-  
+
+   const [ setToast] = useState({
+      show: false,
+       message: "",
+       type: "success",
+    });
+
   useEffect(() => {
     const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
+   
     setUsers(storedUsers);
+     console.log(storedUsers);
+      
   }, []);
 
- useEffect(() => {
-  fetchUsers();
-}, []);
-
+ 
+ const userFields = [
+    { name: "firstName", label: "First Name", required: true },
+    { name: "lastName", label: "Last Name", required: true },
+    { name: "email", label: "Email", type: "email", required: true },
+    { name: "phone", label: "Phone", required: true },
+    {
+      name: "gender",
+      label: "Gender",
+      type: "select",
+      options: ["Male", "Female"],
+      required: true,
+    },
+    { name: "group", label: "Group ID", required: true },
+    { name: "role", label: "Role ID", required: true },
+    { name: "status", label: "Status", type: "toggle" },
+  ];
 
 const fetchUsers = async () => {
-  try {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    const response = await fetch(
-      "http://127.0.0.1:8000/api/user-list",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          status: 1,
-          gender: "ALL",
-          type: "ALL",
-          per_page: 20,
-        }),
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/user-list",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            status: status === "ALL" ? "ALL" : status === "Active" ? 1 : 0,
+            gender: gender,
+            type: role,
+            per_page: perPage,
+            page: activePage,
+            search: search ? search : "",
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        const usersData = result?.data?.data || [];
+
+        const formattedUsers = usersData.map((user) => ({
+          id: user.user_id,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          email: user.email,
+          phone: user.phone,
+          gender: user.gender,
+          group: user.group_name,
+          role: user.role_name,
+          profileImage: user.user_image,
+          createdOn: user.created_on,
+          status: user.status === 1,
+        }));
+
+        setUsers(formattedUsers);
+        setTotalPages(result?.data?.last_page || 1);
+        setTotalRecords(result?.data?.total || 0);
       }
-    );
-
- 
-    const result = await response.json();
-
-    if (response.ok) {
-      const usersData = result.data.data;
-
-      //map in the feilds
-      const formattedUsers = usersData.map((user) => ({
-        id: user.user_id,
-        uuid: user.id,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        gender: user.gender,
-        phone: user.phone,
-        email: user.email,
-        group: user.group_name,
-        role: user.role_name,
-        createdOn: user.created_on,
-        profileImage: user.user_image,
-        status: user.status === 1, 
-      }));
-
-      setUsers(formattedUsers);
-      localStorage.setItem("users", JSON.stringify(formattedUsers));
-    } else {
-      console.log(result.message);
+    } catch (error) {
+      console.log("Fetch Error:", error);
     }
-  } catch (error) {
-    console.log("Error:", error);
-  }
-};
+  };
 
+  
+  useEffect(() => {
+    fetchUsers();
+  }, [search, gender, role, status, activePage, perPage]);
+
+
+
+
+  useEffect(() => {
+    setActivePage(1);
+  }, [search, gender, role, status]);
+
+
+// useEffect(() => {
+//   fetchUsers();
+// }, []);
+
+
+ const handleCreateUser = async (formData) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const data = new FormData();
+
+    
+      data.append("user_id", formData.userId);
+      data.append("first_name", formData.firstName);
+      data.append("last_name", formData.lastName);
+      data.append("email", formData.email);
+      data.append("phone", formData.phone);
+      data.append("gender", formData.gender);
+      data.append("dob", formData.dob);
+      data.append("address", formData.address);
+      data.append("group_id", formData.group);
+      data.append("status", formData.status ? 1 : 0);
+
+      if (formData.image && formData.image[0]) {
+        data.append("user_image", formData.image[0]);
+      }
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/user-create",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+          body: data,
+        }
+      );
+
+      const result = await response.json();
+
+   if (!response.ok) {
+      if (result.message === "Need your photo") {
+        return;
+      }
+      throw new Error(result.message || "Creation failed");
+    }
+
+
+    alert(result.message || "User Created Successfully");
+    navigate("/users");
+
+  } catch (error) {
+
+    alert(error.message || "Server Error");
+  }
+  };
+
+  
+ //delete
+  const handleDelete = (userId) => {
+    const updatedUsers = users.filter((u) => u.id !== userId);
+    setUsers(updatedUsers);
+    localStorage.setItem("users", JSON.stringify(updatedUsers));
+  };
+
+//edit
+  const handleEdit = (user) => {
+    const editIndex = users.findIndex((u) => u.id === user.id);
+
+    navigate("/users/new", {
+      state: {
+        editData: user,
+        editIndex: editIndex,
+      },
+    });
+  };
 
 //filter
   const filteredUsers = useMemo(() => {
@@ -108,28 +222,9 @@ const fetchUsers = async () => {
     setActivePage(1);
   }, [search, gender, role, status]);
 
- //delete
-  const handleDelete = (userId) => {
-    const updatedUsers = users.filter((u) => u.id !== userId);
-    setUsers(updatedUsers);
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-  };
-
-//edit
-  const handleEdit = (user) => {
-    const editIndex = users.findIndex((u) => u.id === user.id);
-
-    navigate("/users/new", {
-      state: {
-        editData: user,
-        editIndex: editIndex,
-      },
-    });
-  };
-
-//pagination
-  const totalRecords = filteredUsers.length;
-  const totalPages = Math.ceil(totalRecords / perPage) || 1;
+  //pagination
+const [totalPages, setTotalPages] = useState(1);
+const [totalRecords, setTotalRecords] = useState(0);
 
   const startIndex = (activePage - 1) * perPage;
   const endIndex = startIndex + perPage;
@@ -140,6 +235,8 @@ const fetchUsers = async () => {
   const endCount = Math.min(endIndex, totalRecords);
 
   const handlePageChange = (page) => setActivePage(page);
+
+ 
 
   const handlePerPageChange = (newPerPage) => {
     setPerPage(Number(newPerPage));
@@ -339,6 +436,15 @@ const fetchUsers = async () => {
                 Group Table 
               </div>
             )}
+            {showCreateForm && (
+  <CommonForm
+    title="Create User"
+    fields={userFields}
+    onSubmit={handleCreateUser}
+    onCancel={() => setShowCreateForm(false)}
+    submitLabel="Create User"
+  />
+)}
           </div>
         </div>
       </div>
