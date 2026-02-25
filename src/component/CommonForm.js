@@ -8,6 +8,8 @@ const CommonForm = ({
   initialData = {},
   onSubmit,
   onCancel,
+  submitLabel="Create"
+
 }) => {
   const [formData, setFormData] = useState(() => {
     const data = {};
@@ -95,7 +97,7 @@ const CommonForm = ({
             }
           >
             {/* LABEL */}
-            <label className="block text-sm font-medium text-[#272757] mb-2">
+            <label className="block text-sml font-medium text-[#272757] mb-2">
               {field.label}
               {field.required && (
                 <span className="text-red-500">
@@ -111,7 +113,7 @@ const CommonForm = ({
                 name={field.name}
                 value={formData[field.name] || ""}
                 onChange={handleChange}
-                className={`w-full h-11 border rounded-md px-3 bg-white border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
+                className={`w-full h-11 border rounded-md px-3 bg-white  border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
                   errors[field.name]
                     ? "border-red-500"
                     : ""
@@ -136,7 +138,7 @@ const CommonForm = ({
                 name={field.name}
                 value={formData[field.name] || ""}
                 onChange={handleChange}
-                className={`w-full h-11 border rounded-md px-3 border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
+                className={`w-full h-11 border  rounded-md px-3 border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
                   errors[field.name]
                     ? "border-red-500"
                     : ""
@@ -257,8 +259,8 @@ const CommonForm = ({
     onClick={onSubmit}
     className="bg-[#3F3D8F] text-white px-12 py-2 rounded-md hover:bg-[#2f2d6f] transition"
   >
+     {submitLabel}
     
-    submit
   </button>
 
   <button

@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
-import CommonForm from "../component/CommonForm";
 import TopBarActions from "../component/TopBarActions";
 import AgTable from "../Components/Table/AgTable";
 import { Menu } from "@headlessui/react";
@@ -11,12 +10,11 @@ import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 const ManageUsers = () => {
   const navigate = useNavigate();
 
+  
+
   const [users, setUsers] = useState([]);
   const [activeUserTab, setActiveUserTab] = useState("users");
-  //create form
-  const [showCreateForm, setShowCreateForm] = useState(false);
 
- 
   const [search, setSearch] = useState("");
   const [gender, setGender] = useState("ALL");
   const [role, setRole] = useState("ALL");
@@ -25,40 +23,11 @@ const ManageUsers = () => {
   const [activePage, setActivePage] = useState(1);
   const [perPage, setPerPage] = useState(25);
 
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
 
-   const [ setToast] = useState({
-      show: false,
-       message: "",
-       type: "success",
-    });
-
-  useEffect(() => {
-    const storedUsers = JSON.parse(localStorage.getItem("users")) || [];
-   
-    setUsers(storedUsers);
-     console.log(storedUsers);
-      
-  }, []);
-
- 
- const userFields = [
-    { name: "firstName", label: "First Name", required: true },
-    { name: "lastName", label: "Last Name", required: true },
-    { name: "email", label: "Email", type: "email", required: true },
-    { name: "phone", label: "Phone", required: true },
-    {
-      name: "gender",
-      label: "Gender",
-      type: "select",
-      options: ["Male", "Female"],
-      required: true,
-    },
-    { name: "group", label: "Group ID", required: true },
-    { name: "role", label: "Role ID", required: true },
-    { name: "status", label: "Status", type: "toggle" },
-  ];
-
-const fetchUsers = async () => {
+  // fetch API get all data
+  const fetchUsers = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
 
@@ -72,12 +41,14 @@ const fetchUsers = async () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            status: status === "ALL" ? "ALL" : status === "Active" ? 1 : 0,
-            gender: gender,
-            type: role,
-            per_page: perPage,
-            page: activePage,
-            search: search ? search : "",
+            
+  status: status,
+  gender: gender,
+  type: role,
+  per_page: perPage,
+  page: activePage,
+  search: search || "",
+
           }),
         }
       );
@@ -98,7 +69,7 @@ const fetchUsers = async () => {
           role: user.role_name,
           profileImage: user.user_image,
           createdOn: user.created_on,
-          status: user.status === 1,
+          status: Number(user.status),
         }));
 
         setUsers(formattedUsers);
@@ -108,89 +79,20 @@ const fetchUsers = async () => {
     } catch (error) {
       console.log("Fetch Error:", error);
     }
-  };
+  }, [search, gender, role, status, activePage, perPage]);
 
   
   useEffect(() => {
     fetchUsers();
-  }, [search, gender, role, status, activePage, perPage]);
+  }, [fetchUsers]);
 
-
-
-
+ 
   useEffect(() => {
     setActivePage(1);
   }, [search, gender, role, status]);
 
-
-// useEffect(() => {
-//   fetchUsers();
-// }, []);
-
-
- const handleCreateUser = async (formData) => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const data = new FormData();
-
-    
-      data.append("user_id", formData.userId);
-      data.append("first_name", formData.firstName);
-      data.append("last_name", formData.lastName);
-      data.append("email", formData.email);
-      data.append("phone", formData.phone);
-      data.append("gender", formData.gender);
-      data.append("dob", formData.dob);
-      data.append("address", formData.address);
-      data.append("group_id", formData.group);
-      data.append("status", formData.status ? 1 : 0);
-
-      if (formData.image && formData.image[0]) {
-        data.append("user_image", formData.image[0]);
-      }
-
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/user-create",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-          body: data,
-        }
-      );
-
-      const result = await response.json();
-
-   if (!response.ok) {
-      if (result.message === "Need your photo") {
-        return;
-      }
-      throw new Error(result.message || "Creation failed");
-    }
-
-
-    alert(result.message || "User Created Successfully");
-    navigate("/users");
-
-  } catch (error) {
-
-    alert(error.message || "Server Error");
-  }
-  };
-
-  
- //delete
-  const handleDelete = (userId) => {
-    const updatedUsers = users.filter((u) => u.id !== userId);
-    setUsers(updatedUsers);
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-  };
-
-//edit
-  const handleEdit = (user) => {
+ //EDIT
+   const handleEdit = (user) => {
     const editIndex = users.findIndex((u) => u.id === user.id);
 
     navigate("/users/new", {
@@ -201,55 +103,49 @@ const fetchUsers = async () => {
     });
   };
 
-//filter
-  const filteredUsers = useMemo(() => {
-    return users.filter((u) => {
-      return (
-        (search === "" ||
-          u.firstName?.toLowerCase().includes(search.toLowerCase()) ||
-          u.lastName?.toLowerCase().includes(search.toLowerCase()) ||
-          u.email?.toLowerCase().includes(search.toLowerCase())) &&
-        (gender === "ALL" || u.gender === gender) &&
-        (role === "ALL" || u.role === role) &&
-        (status === "ALL" ||
-          (status === "Active" ? u.status === true : u.status === false))
-      );
-    });
-  }, [users, search, gender, role, status]);
+  //DELETE
+  const handleDelete = (userId) => {
+    const updatedUsers = users.filter((u) => u.id !== userId);
+    setUsers(updatedUsers);
+  };
 
-// reset in the fields
-  useEffect(() => {
-    setActivePage(1);
-  }, [search, gender, role, status]);
+// // FORMAL FILTER
+//   const filteredUsers = useMemo(() => {
+//     return users.filter((u) => {
+//       return (
+//         (search === "" ||
+//           u.firstName?.toLowerCase().includes(search.toLowerCase()) ||
+//           u.lastName?.toLowerCase().includes(search.toLowerCase()) ||
+//           u.email?.toLowerCase().includes(search.toLowerCase())) &&
+//         (gender === "ALL" || u.gender === gender) &&
+//         (role === "ALL" || u.role === role) &&
+//         (status === "ALL" ||
+//           (status === "Active" ? u.status : !u.status))
+//       );
+//     });
+//   }, [users, search, gender, role, status]);
 
-  //pagination
-const [totalPages, setTotalPages] = useState(1);
-const [totalRecords, setTotalRecords] = useState(0);
+  //  Pagination 
+  const startCount =
+    totalRecords === 0 ? 0 : (activePage - 1) * perPage + 1;
 
-  const startIndex = (activePage - 1) * perPage;
-  const endIndex = startIndex + perPage;
-
-  const currentUsers = filteredUsers.slice(startIndex, endIndex);
-
-  const startCount = totalRecords === 0 ? 0 : startIndex + 1;
-  const endCount = Math.min(endIndex, totalRecords);
+  const endCount = Math.min(
+    activePage * perPage,
+    totalRecords
+  );
 
   const handlePageChange = (page) => setActivePage(page);
 
- 
-
-  const handlePerPageChange = (newPerPage) => {
-    setPerPage(Number(newPerPage));
+  const handlePerPageChange = (value) => {
+    setPerPage(Number(value));
     setActivePage(1);
   };
 
-
-  
-
-//table columns data passing 
+  // Table Columns
   const columnDefs = [
     {
       headerName: "Profile Image",
+      width: 100,
       cellRenderer: (params) =>
         params.data.profileImage ? (
           <img
@@ -260,41 +156,24 @@ const [totalRecords, setTotalRecords] = useState(0);
         ) : (
           <div className="w-10 h-10 rounded-full bg-gray-300"></div>
         ),
-      width: 100,
     },
-
     { headerName: "User ID", field: "id", width: 110 },
-
     {
       headerName: "Name",
-      field: "firstName",
-      cellRenderer: (params) => {
-        const first = params.data?.firstName || "";
-        const last = params.data?.lastName || "";
-        return (
-          <span className="text-blue-600 font-medium cursor-pointer">
-            {first} {last}
-          </span>
-        );
-      },
       minWidth: 160,
+      cellRenderer: (params) => (
+        <span className="text-blue-600 font-medium cursor-pointer">
+          {params.data?.firstName} {params.data?.lastName}
+        </span>
+      ),
     },
-
     { headerName: "Gender", field: "gender", width: 110 },
     { headerName: "Phone No.", field: "phone", width: 130 },
-
-    {
-      headerName: "Email",
-      field: "email",
-      flex: 1,
-      minWidth: 220,
-    },
-
+    { headerName: "Email", field: "email", flex: 1, minWidth: 220 },
     { headerName: "Group Name", field: "group", width: 150 },
     { headerName: "Role Name", field: "role", width: 150 },
-    { headerName: "Created on", field: "createdOn", width: 130 },
-
-    {
+    { headerName: "Created On", field: "createdOn", width: 130 },
+     {
       headerName: "Status",
       field: "status",
       width: 130,
@@ -315,7 +194,6 @@ const [totalRecords, setTotalRecords] = useState(0);
       width: 100,
       cellRenderer: (params) => {
         const user = params.data;
-
         return (
           <Menu as="div" className="relative inline-block text-left">
             <Menu.Button className="p-2 hover:bg-gray-200 rounded">
@@ -358,7 +236,6 @@ const [totalRecords, setTotalRecords] = useState(0);
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
-
       <div className="flex">
         <Sidebar />
 
@@ -367,31 +244,30 @@ const [totalRecords, setTotalRecords] = useState(0);
             Manage Users
           </h2>
 
-          {/*TABS */}
+          {/* Tabs */}
+          <div className="flex gap-8 border-b border-[#D5D5EC] mt-6">
+            {[
+              { id: "users", label: "Users" },
+              { id: "groups", label: "Groups" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveUserTab(tab.id)}
+                className={`relative pb-3 text-sml font-medium ${
+                  activeUserTab === tab.id
+                    ? "text-[#272757]"
+                    : "text-gray-500"
+                }`}
+              >
+                {tab.label}
+                {activeUserTab === tab.id && (
+                  <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#272757]" />
+                )}
+              </button>
+            ))}
+          </div>
 
-<div className="flex gap-8 border-b border-[#D5D5EC] mt-6">
-  {[
-    { id: "users", label: "Users" },
-    { id: "groups", label: "Groups" },
-  ].map((tab) => (
-    <button
-      key={tab.id}
-      onClick={() => setActiveUserTab(tab.id)}
-      className={`relative pb-3 text-sml font-medium transition-all ${
-        activeUserTab === tab.id
-          ? "text-[#272757]"
-          : "text-[#6B7280]"
-      }`}
-    >
-      {tab.label}
-
-      {activeUserTab === tab.id && (
-        <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#272757]"></span>
-      )}
-    </button>
-  ))}
-</div>
-          {/* FILTER BAR  */}
+          {/* Filters */}
           <TopBarActions
             search={search}
             setSearch={setSearch}
@@ -411,11 +287,11 @@ const [totalRecords, setTotalRecords] = useState(0);
             }}
           />
 
-          {/*  TABLE*/}
+          {/* Table */}
           <div className="mt-6">
-            {activeUserTab === "users" && (
+            {activeUserTab === "users" ? (
               <AgTable
-                rowData={currentUsers}
+                rowData={users}
                 columnDefs={columnDefs}
                 activePage={activePage}
                 handlePageChange={handlePageChange}
@@ -428,23 +304,13 @@ const [totalRecords, setTotalRecords] = useState(0);
                   to: endCount,
                 }}
                 onPerPageChange={handlePerPageChange}
+                changeActivepage={setActivePage}
               />
-            )}
-
-            {activeUserTab === "groups" && (
-              <div className="text-gray-500 text-center py-10">
-                Group Table 
+            ) : (
+              <div className="text-center py-10 text-gray-500">
+                Group Table
               </div>
             )}
-            {showCreateForm && (
-  <CommonForm
-    title="Create User"
-    fields={userFields}
-    onSubmit={handleCreateUser}
-    onCancel={() => setShowCreateForm(false)}
-    submitLabel="Create User"
-  />
-)}
           </div>
         </div>
       </div>

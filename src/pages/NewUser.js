@@ -56,23 +56,35 @@ const NewUser = () => {
       name: "gender",
       label: "Gender",
       type: "select",
-      options: ["Male", "Female"],
+      options: ["Male", "Female" , "Others"],
       required: true,
     },
     { name: "phone", label: "Phone", required: true },
     { name: "email", label: "Email", type: "email", required: true },
     { name: "address", label: "Address" },
     { name: "status", label: "Status", type: "toggle" },
-    { name: "image", label: "Profile Image", type: "file", fullWidth: true },
+    {
+      name: "image",
+      label: "Profile Image",
+      type: "file",
+      required: !editData, 
+      fullWidth: true,
+    },
   ];
-
+  // CREATE API 
   const handleCreateUser = async (formData) => {
     try {
+      
+      if (!editData && !formData.image) {
+        // showToast("Need your photo", "error");
+        return;
+      }
+
       const token = localStorage.getItem("token");
       const type_id = "87076d07-c3cc-4c72-af9a-a9b069c680be";
 
       const data = new FormData();
-
+      //NORMAL FEILDS
       data.append("user_id", formData.userId);
       data.append("first_name", formData.firstName);
       data.append("last_name", formData.lastName);
@@ -84,7 +96,7 @@ const NewUser = () => {
       data.append("user_type_id", type_id);
       data.append("group_name", formData.group);
       data.append("status", formData.status ? 1 : 0);
-
+      // IMAGE ONLY FILE FORMAT
       if (formData.image) {
         data.append("user_image", formData.image);
       }
@@ -122,7 +134,6 @@ const NewUser = () => {
     <div className="min-h-screen bg-gray-100">
       <Navbar />
 
-      {/* Toast */}
       {toast.show && (
         <Toast
           show={toast.show}

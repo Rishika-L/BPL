@@ -8,7 +8,7 @@ const TopBarActions = ({
   setGender,
   role = "ALL",
   setRole,
-  status = "Active",
+  status = "ALL",
   setStatus,
   onCreate,
   onClear,
@@ -40,8 +40,8 @@ const TopBarActions = ({
           className="border border-[#D5D5EC] text-[#686889] rounded-full px-4 py-2 size-14px focus:outline-none focus:ring-2 focus:ring-[#272757]"
         >
           <option value="ALL">Gender</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
           <option value="Other">Other</option>
         </select>
 
@@ -57,16 +57,16 @@ const TopBarActions = ({
               <option value="System Admin"> Manager</option>
         </select>
 
-        {/* Status */}
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="border border-[#D5D5EC] text-[#686889] rounded-full px-4 py-2 size-14px focus:outline-none focus:ring-2 focus:ring-[#272757]"
-        >
-          <option value="ALL">Status</option>
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
-        </select>
+       {/* Status */}
+<select
+  value={status}
+  onChange={(e) => setStatus(e.target.value)}
+  className="border border-[#D5D5EC] text-[#686889] rounded-full px-4 py-2 text-14px focus:outline-none focus:ring-2 focus:ring-[#272757]"
+>
+  <option value="ALL">Status</option>
+  <option value="1">Active</option>
+  <option value="0">Inactive</option>
+</select>
 
         {/* Clear BTN */}
         <button

@@ -387,6 +387,7 @@ const ManageProducts = () => {
                   to: endCount,
                 }}
                 onPerPageChange={handlePerPageChange}
+                changeActivepage={setActivePage}
                 onRowDragEnd={handleRowDragEnd}
               />
             </div>
