@@ -14,15 +14,38 @@ const CommonForm = ({
   
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({});
+  console.log("55555",formData);
+  
+  // useEffect(() => {
+  //   const data = {};
+  //   fields.forEach((f) => {
+  //     data[f.name] =
+  //       initialData[f.name] ??
+  //       (f.type === "toggle" ? false : "");
+  //   });
+  //   setFormData(data);
+  // }, [initialData, fields]);
   useEffect(() => {
-    const data = {};
-    fields.forEach((f) => {
-      data[f.name] =
-        initialData[f.name] ??
-        (f.type === "toggle" ? false : "");
-    });
-    setFormData(data);
-  }, [initialData, fields]);
+  const data = {};
+
+  fields.forEach((f) => {
+    let value = initialData[f.name];
+
+    // ✅ Fix for date format
+    if (f.type === "date" && value) {
+      if (value.includes("/")) {
+        const [day, month, year] = value.split("/");
+        value = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+      }
+    }
+
+    data[f.name] =
+      value ??
+      (f.type === "toggle" ? false : "");
+  });
+
+  setFormData(data);
+}, [initialData, fields]);
 
 
  

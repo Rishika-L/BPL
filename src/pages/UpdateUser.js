@@ -9,36 +9,36 @@ import CommonForm from "../component/CommonForm";
 
 
 const fields = [
-  { name: "userId", label: "User ID", required: true, fullWidth: true },
+  // { name: "userId", label: "User ID", required: true, fullWidth: true },
 
-  {
-    name: "group",
-    label: "Group Name",
-    type: "select",
-    options: ["Admin", "User"],
-    required: true,
-    fullWidth: true,
-  },
+  // {
+  //   name: "group",
+  //   label: "Group Name",
+  //   type: "select",
+  //   options: ["Admin", "User", "Manager"],
+  //   required: true,
+  //   fullWidth: true,
+  // },
 
-  { name: "firstName", label: "First Name", required: true },
-  { name: "lastName", label: "Last Name" },
+  // { name: "firstName", label: "First Name", required: true },
+  // { name: "lastName", label: "Last Name" },
 
-  { name: "dob", label: "Date of Birth", type: "date" },
+  // { name: "dob", label: "Date of Birth", type: "date" },
 
-  {
-    name: "gender",
-    label: "Gender",
-    type: "select",
-    options: ["Male", "Female"],
-    required: true,
-  },
+  // {
+  //   name: "gender",
+  //   label: "Gender",
+  //   type: "select",
+  //   options: ["Male", "Female"],
+  //   required: true,
+  // },
 
-  { name: "phone", label: "Phone Number", required: true },
-  { name: "email", label: "Email", type: "email", required: true },
+  // { name: "phone", label: "Phone Number", required: true },
+  // { name: "email", label: "Email", type: "email", required: true },
 
-  { name: "location", label: "Location" },
+  // { name: "location", label: "Location" },
 
-  { name: "status", label: "Status", type: "toggle" },
+  // { name: "status", label: "Status", type: "toggle" },
 
   { name: "image", label: "Profile Image", type: "file", fullWidth: true },
 ];
@@ -47,21 +47,25 @@ const EditUser = () => {
   const navigate = useNavigate();
   const { id } = useParams(); 
   const [initialData, setInitialData] = useState(null);
+  console.log("444",initialData);
+  
 
   useEffect(() => {
     const users = JSON.parse(localStorage.getItem("users")) || [];
     const user = users.find((u) => u.id === parseInt(id));
     if (user) {
+      console.log("33333",user);
+      
     setInitialData({
   userId: user.user_id || "",
-  group: user.group_name || "",
-  firstName: user.first_name || "",
-  lastName: user.last_name || "",
-  dob: user.dob ? user.dob.split("T")[0] : "",
-  gender: user.gender || "",
-  phone: user.phone || "",
-  email: user.email || "",
-  address: user.location || "",
+  // group: user.group_name || "",
+  // firstName: user.first_name || "",
+  // lastName: user.last_name || "",
+  // dob: user.dob || "",
+  // gender: user.gender || "",
+  // phone: user.phone || "",
+  // email: user.email || "",
+  // location: user.location || "",
   status: user.status === 1,
   image: null,
   imagePreview: user.image

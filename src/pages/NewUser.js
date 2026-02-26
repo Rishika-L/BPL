@@ -10,6 +10,8 @@ const NewUser = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const editData = location.state?.editData;
+  console.log("1111",editData);
+  
 
   const [toast, setToast] = useState({
     show: false,
@@ -35,11 +37,11 @@ const NewUser = () => {
 
   const fields = [
     {
-      name: "userId",
+      name: editData ? "id":"userId",
       label: "User ID",
       required: true,
       fullWidth: true,
-      disabled: !!editData,
+      disabled: editData,
     },
     {
       name: "group",
@@ -64,14 +66,16 @@ const NewUser = () => {
     { name: "location", label: "Location" },
     { name: "status", label: "Status", type: "toggle" },
     {
-      name: "image",
+      name: editData ? "image":"image",
       label: "Profile Image",
       type: "file",
-      required: !editData, 
+      required: editData, 
       fullWidth: true,
     },
   ];
   const handleCreateUser = async (formData) => {
+    console.log("22222", formData);
+    
   try {
     const token = localStorage.getItem("token");
     const type_id = "87076d07-c3cc-4c72-af9a-a9b069c680be";
@@ -195,6 +199,14 @@ if (editData) {
     showToast(error.message || "Server Error", "error");
   }
 };
+
+const formattedEditData = editData
+  ? {
+      ...editData,
+      userId: editData.user_id || editData.id,
+      imagePreview: editData.image, // 👈 important
+    }
+  : { status: true };
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
@@ -232,7 +244,7 @@ if (editData) {
 
           <CommonForm
             fields={fields}
-            initialData={editData || { status: true }}
+            initialData={formattedEditData}
             onSubmit={handleCreateUser}
             onCancel={() => navigate("/users")}
             submitLabel={editData ? "Update" : "Create"}

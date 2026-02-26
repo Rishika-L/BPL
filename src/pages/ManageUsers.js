@@ -72,7 +72,7 @@ const ManageUsers = () => {
           createdOn: user.created_on,
           status: Number(user.status),
            dob: user.dob,
-  location: user.location,
+          location: user.location,
         }));
 
         setUsers(formattedUsers);
@@ -96,6 +96,7 @@ const ManageUsers = () => {
 
  //EDIT
    const handleEdit = (user) => {
+    console.log("aaaa", user)
     const editIndex = users.findIndex((u) => u.id === user.id);
 
     navigate("/users/new", {
