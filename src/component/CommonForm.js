@@ -1,5 +1,5 @@
 // src/component/CommonForm.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 // import uploadIcon from "../images/Union.png";
 
 const CommonForm = ({
@@ -11,31 +11,47 @@ const CommonForm = ({
   submitLabel="Create"
 
 }) => {
-  const [formData, setFormData] = useState(() => {
+  
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({});
+  useEffect(() => {
     const data = {};
     fields.forEach((f) => {
       data[f.name] =
         initialData[f.name] ??
         (f.type === "toggle" ? false : "");
     });
-    return data;
-  });
+    setFormData(data);
+  }, [initialData, fields]);
 
-  const [errors, setErrors] = useState({});
 
+ 
+ 
+// const [formValues, setFormValues] = useState(initialData || {});
+
+// useEffect(() => {
+//   setFormValues(initialData || {});
+// }, [initialData]);
  
  const handleChange = (e) => {
   const { name, value, type, checked, files } = e.target;
 
-  setFormData((prev) => ({
-    ...prev,
-    [name]:
-      type === "checkbox"
-        ? checked
-        : type === "file"
-        ? files[0]  
-        : value,
-  }));
+  if (type === "file") {
+    const file = files[0];
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: file,
+      imagePreview: file
+        ? URL.createObjectURL(file)
+        : prev.imagePreview,
+    }));
+  } else {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  }
 };
   
 //validation
@@ -71,21 +87,21 @@ const CommonForm = ({
   };
 
   return (
-    <div className="w-full bg-[#F7F8FC] min-h-screen px-6 py-8">
+    <div className="w-full bg-[#F7F8FC] min-h-screen mb-5 -px-1 py-8">
       {/* HEADER */}
-      <div className="mb-6">
+      <div className="mb-6 pb-1">
         {title && (
           <h2 className="text-2xl font-semibold text-[#272757]">
             {title}
           </h2>
         )}
-        <div className="border-b border-[#D5D5EC] mt-2"></div>
+        <div className="border-b border-[#D5D5EC]  -pb-10 -mb-2"></div>
       </div>
 
       {/* FORM */}
       <form
         onSubmit={handleSubmit}
-        className="max-w-4xl grid grid-cols-2 gap-x-12 gap-y-6"
+        className="max-w-4xl  grid grid-cols-2 gap-x-12 gap-y-6"
       >
         {fields.map((field) => (
           <div
@@ -180,43 +196,45 @@ const CommonForm = ({
               </div>
             )}
 
-            {/* FILE */}
-            {field.type === "file" && (
-              <label
-                className={`bg-[#E9EAF5] border border-[#D5D5EC] rounded-md p-4 w-full flex items-center gap-3 cursor-pointer ${
-                  errors[field.name]
-                    ? "border-red-500"
-                    : ""
-                }`}
-              >
-                {formData.image && (
-  <img
-    src={URL.createObjectURL(formData.image)}
-    alt="Preview"
-    className="w-24 h-24 mt-2 rounded"
-  />
-)}
-                <div>
-                  <p className="text-sm font-medium text-[#272757]">
-                    Add Profile Image
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Image size should be less than 1MB.
-                    Only jpg, jpeg, png allowed.
-                  </p>
-                </div>
+      {field.type === "file" && (
+  <div
+    className={`bg-[#E9EAF5] border border-[#D5D5EC] rounded-md p-4 w-full ${
+      errors[field.name] ? "border-red-500" : ""
+    }`}
+  >
+    {/* Preview from API (edit mode) */}
+    {formData.imagePreview && !formData.image && (
+      <img
+        src={formData.imagePreview}
+        alt="Preview"
+        className="w-24 h-24 mb-3 rounded"
+      />
+    )}
 
-               {field.type === "file" && (
-  <input
-    type="file"
-    name={field.name}
-    accept="image/*"
-    onChange={handleChange}
-  />
-)}
-              </label>
-            )}
+    {/* Preview from newly selected file */}
+    {formData.image && (
+      <img
+        src={URL.createObjectURL(formData.image)}
+        alt="Preview"
+        className="w-24 h-24 mb-3 rounded"
+      />
+    )}
 
+    <p className="text-sm font-medium text-[#272757]">
+      Add Profile Image
+    </p>
+    <p className="text-xs text-gray-500 mb-2">
+      Image size should be less than 1MB. Only jpg, jpeg, png allowed.
+    </p>
+
+    <input
+      type="file"
+      name={field.name}
+      accept="image/*"
+      onChange={handleChange}
+    />
+  </div>
+)}
 
 
             {/* DEFAULT INPUT */}
@@ -243,6 +261,8 @@ const CommonForm = ({
               />
             )}
 
+
+
             {/* ERROR */}
             {errors[field.name] && (
               <p className="text-red-500 text-xs mt-1">
@@ -256,7 +276,7 @@ const CommonForm = ({
 <div className="col-span-2 flex gap-6 mt-8">
   <button
     type="submit"
-    onClick={onSubmit}
+    // onClick={onSubmit}
     className="bg-[#3F3D8F] text-white px-12 py-2 rounded-md hover:bg-[#2f2d6f] transition"
   >
      {submitLabel}

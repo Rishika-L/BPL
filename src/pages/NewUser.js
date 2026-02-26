@@ -61,7 +61,7 @@ const NewUser = () => {
     },
     { name: "phone", label: "Phone", required: true },
     { name: "email", label: "Email", type: "email", required: true },
-    { name: "address", label: "Address" },
+    { name: "location", label: "Location" },
     { name: "status", label: "Status", type: "toggle" },
     {
       name: "image",
@@ -71,65 +71,130 @@ const NewUser = () => {
       fullWidth: true,
     },
   ];
-  // CREATE API 
   const handleCreateUser = async (formData) => {
-    try {
-      
-      if (!editData && !formData.image) {
-        // showToast("Need your photo", "error");
-        return;
-      }
+  try {
+    const token = localStorage.getItem("token");
+    const type_id = "87076d07-c3cc-4c72-af9a-a9b069c680be";
+  const username = `${formData.firstName} ${formData.lastName || ""}`;
+    
 
-      const token = localStorage.getItem("token");
-      const type_id = "87076d07-c3cc-4c72-af9a-a9b069c680be";
-
-      const data = new FormData();
-      //NORMAL FEILDS
-      data.append("user_id", formData.userId);
-      data.append("first_name", formData.firstName);
-      data.append("last_name", formData.lastName);
-      data.append("email", formData.email);
-      data.append("phone", formData.phone);
-      data.append("gender", formData.gender);
-      data.append("dob", formData.dob);
-      data.append("address", formData.address);
-      data.append("user_type_id", type_id);
-      data.append("group_name", formData.group);
-      data.append("status", formData.status ? 1 : 0);
-      // IMAGE ONLY FILE FORMAT
-      if (formData.image) {
-        data.append("user_image", formData.image);
-      }
-
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/user-create",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-          body: data,
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "User creation failed");
-      }
-
-      showToast(result.message || "User Created Successfully", "success");
-
-      setTimeout(() => {
-        navigate("/users");
-      }, 1500);
-
-    } catch (error) {
-      showToast(error.message || "Server Error", "error");
+    if (!editData && !formData.image) {
+      // showToast("Profile image is required", "error");
+      return;
     }
-  };
 
+    const data = new FormData();
+
+    data.append("user_id", formData.userId);
+   data.append("first_name", formData.firstName);  
+  data.append("last_name", formData.lastName);  
+  data.append("user_name", username);
+    data.append("email", formData.email);
+    data.append("phone", formData.phone);
+    data.append("gender", formData.gender);
+    data.append("dob", formData.dob);
+    data.append("location", formData.location);
+    data.append("user_type_id", type_id);
+    data.append("group_name", formData.group);
+    data.append("status", formData.status ? 1 : 0);
+ 
+
+    if (formData.image) {
+      data.append("user_image", formData.image);
+    }
+
+    let response;
+    
+//edit
+if (editData) {
+  console.log("EDIT DATA:", editData);
+  const token = localStorage.getItem("token");
+  const type_id = "87076d07-c3cc-4c72-af9a-a9b069c680be";
+   const username = `${formData.firstName} ${formData.lastName || ""}`;
+
+  const data = new FormData();
+
+   data.append("emp_id", editData?.emp_id);  
+
+    data.append("user_id", formData.userId);
+    
+
+    data.append("user_name", username);
+    data.append("first_name", formData.firstName);
+    data.append("last_name", formData.lastName);
+    data.append("dob", formData.dob);
+    data.append("gender", formData.gender);
+    data.append("user_type_id", type_id);
+    data.append("phone", formData.phone);
+    data.append("email", formData.email);
+    data.append("location", formData.location);  
+    data.append("status", formData.status ? 1 : 0);
+
+  if (formData.image) {
+    data.append("user_image", formData.image);
+  }
+
+  const response = await fetch(
+    "http://127.0.0.1:8000/api/user-update",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      body: data,
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    // throw new Error(result.message || "Update failed");
+  }
+
+  showToast(result.message || "User Updated Successfully", "success");
+
+  setTimeout(() => {
+    navigate("/users");
+  }, 1500);
+}
+ else {
+  if (!formData.image) {
+    showToast("Profile image is required", "error");
+    return;
+  }
+
+  response = await fetch(
+    "http://127.0.0.1:8000/api/user-create",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+      body: data,
+    }
+  );
+}
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Operation failed");
+    }
+
+    showToast(
+      result.message || (editData ? "User Updated Successfully" : "User Created Successfully"),
+      "success"
+    );
+
+    setTimeout(() => {
+      navigate("/users");
+    }, 1500);
+
+  } catch (error) {
+    showToast(error.message || "Server Error", "error");
+  }
+};
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />

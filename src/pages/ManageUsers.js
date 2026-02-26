@@ -60,6 +60,7 @@ const ManageUsers = () => {
 
         const formattedUsers = usersData.map((user) => ({
           id: user.user_id,
+          user_id:user.user_id,
           firstName: user.first_name,
           lastName: user.last_name,
           email: user.email,
@@ -70,6 +71,8 @@ const ManageUsers = () => {
           profileImage: user.user_image,
           createdOn: user.created_on,
           status: Number(user.status),
+           dob: user.dob,
+  location: user.location,
         }));
 
         setUsers(formattedUsers);
@@ -157,7 +160,7 @@ const ManageUsers = () => {
           <div className="w-10 h-10 rounded-full bg-gray-300"></div>
         ),
     },
-    { headerName: "User ID", field: "id", width: 110 },
+    { headerName: "User ID", field: "User_id", width: 110 },
     {
       headerName: "Name",
       minWidth: 160,

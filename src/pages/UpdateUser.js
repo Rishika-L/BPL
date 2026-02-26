@@ -36,7 +36,7 @@ const fields = [
   { name: "phone", label: "Phone Number", required: true },
   { name: "email", label: "Email", type: "email", required: true },
 
-  { name: "address", label: "Address" },
+  { name: "location", label: "Location" },
 
   { name: "status", label: "Status", type: "toggle" },
 
@@ -52,11 +52,22 @@ const EditUser = () => {
     const users = JSON.parse(localStorage.getItem("users")) || [];
     const user = users.find((u) => u.id === parseInt(id));
     if (user) {
-      setInitialData({
-        ...user,
-        image: null, 
-        imagePreview: user.imagePreview || "", 
-      });
+    setInitialData({
+  userId: user.user_id || "",
+  group: user.group_name || "",
+  firstName: user.first_name || "",
+  lastName: user.last_name || "",
+  dob: user.dob ? user.dob.split("T")[0] : "",
+  gender: user.gender || "",
+  phone: user.phone || "",
+  email: user.email || "",
+  address: user.location || "",
+  status: user.status === 1,
+  image: null,
+  imagePreview: user.image
+    ? `http://localhost:8000/uploads/${user.image}`
+    : "",
+});
     } else {
       navigate("/users"); 
     }
@@ -105,13 +116,14 @@ const EditUser = () => {
                 </h2>
               </div>
             </div>
-            <div className="mt-3 border-b border-gray-300" />
+            {/* <div className="mt-3 pb- border-b border-gray-300" /> */}
           </div>
 
           {/* COMMON FORM */}
           <CommonForm
             fields={fields}
             initialData={initialData}
+            // onClick={handleEdit}
             onSubmit={handleSubmit}
             onCancel={() => navigate("/users")}
           />
