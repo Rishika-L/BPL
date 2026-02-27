@@ -1,19 +1,16 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback} from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
 import TopBarActions from "../component/TopBarActions";
 import AgTable from "../Components/Table/AgTable";
+import Toast from "../Components/Toast/Toast";
 import { Menu } from "@headlessui/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 
 const ManageUsers = () => {
   const navigate = useNavigate();
 
-  
-
-  const [users, setUsers] = useState([]);
-  const [activeUserTab, setActiveUserTab] = useState("users");
 
   const [search, setSearch] = useState("");
   const [gender, setGender] = useState("ALL");
@@ -25,6 +22,32 @@ const ManageUsers = () => {
 
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
+
+const [users, setUsers] = useState([]);
+const [activeUserTab, setActiveUserTab] = useState("users");
+
+
+
+const [toast, setToast] = useState({
+  show: false,
+  message: "",
+  type: "",
+});
+const showToast = (message, type = "success") => {
+  setToast({
+    show: true,
+    message,
+    type,
+  });
+
+  setTimeout(() => {
+    setToast({
+      show: false,
+      message: "",
+      type: "success",
+    });
+  }, 3000);
+};
 
   // fetch API get all data
   const fetchUsers = useCallback(async () => {
@@ -59,7 +82,7 @@ const ManageUsers = () => {
         const usersData = result?.data?.data || [];
 
         const formattedUsers = usersData.map((user) => ({
-          id: user.user_id,
+          id: user.id,
           user_id:user.user_id,
           firstName: user.first_name,
           lastName: user.last_name,
@@ -107,11 +130,43 @@ const ManageUsers = () => {
     });
   };
 
-  //DELETE
-  const handleDelete = (userId) => {
-    const updatedUsers = users.filter((u) => u.id !== userId);
-    setUsers(updatedUsers);
-  };
+  // DELETE API 
+ 
+const handleDelete = async (user) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const data = new FormData();
+    data.append("emp_id", user.id);
+
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/user-delete",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        body: data,
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Delete failed");
+    }
+
+   
+    showToast(result.message || "User Deleted Successfully", "success");
+
+
+    setUsers((prev) => prev.filter((u) => u.id !== user.id));
+
+  } catch (error) {
+    showToast(error.message || "Server Error", "error");
+  }
+};
 
 // // FORMAL FILTER
 //   const filteredUsers = useMemo(() => {
@@ -161,90 +216,137 @@ const ManageUsers = () => {
           <div className="w-10 h-10 rounded-full bg-gray-300"></div>
         ),
     },
-    { headerName: "User ID", field: "User_id", width: 110 },
+    { headerName: "User ID", field: "user_id", width: 110,
+      cellRenderer: (params) => (
+    <span className="text-[#272757] text-sml ">
+      {params.value}
+    </span>
+  ), },
     {
-      headerName: "Name",
+      headerName: "User Name",
       minWidth: 160,
       cellRenderer: (params) => (
-        <span className="text-blue-600 font-medium cursor-pointer">
+        <span className="text-[#0F5DE8] text-sml font-medium cursor-pointer">
           {params.data?.firstName} {params.data?.lastName}
         </span>
       ),
     },
-    { headerName: "Gender", field: "gender", width: 110 },
-    { headerName: "Phone No.", field: "phone", width: 130 },
-    { headerName: "Email", field: "email", flex: 1, minWidth: 220 },
-    { headerName: "Group Name", field: "group", width: 150 },
-    { headerName: "Role Name", field: "role", width: 150 },
-    { headerName: "Created On", field: "createdOn", width: 130 },
+    { headerName: "Gender", field: "gender", width: 110,cellRenderer: (params) => (
+    <span className="text-[#272757] text-sml">
+      {params.value}
+    </span>
+  ), },
+    { headerName: "Phone No.", field: "phone", width: 130 ,cellRenderer: (params) => (
+    <span className="text-[#272757] text-sml">
+      {params.value}
+    </span>
+  ),},
+    { headerName: "Email", field: "email", flex: 1, minWidth: 220,cellRenderer: (params) => (
+    <span className="text-[#272757] text-sml">
+      {params.value}
+    </span>
+  ), },
+    { headerName: "Group Name", field: "group", width: 150 ,cellRenderer: (params) => (
+    <span className="text-[#272757]">
+      {params.value}
+    </span>
+  ),},
+    { headerName: "Role Name", field: "role", width: 150 ,cellRenderer: (params) => (
+    <span className="text-[#272757] text-sml">
+      {params.value}
+    </span>
+  ),},
+    { headerName: "Created On", field: "createdOn", width: 130,cellRenderer: (params) => (
+    <span className="text-[#272757] text-sml">
+      {params.value}
+    </span>
+  ), },
      {
       headerName: "Status",
       field: "status",
       width: 130,
       cellRenderer: (params) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center text-[#272757] gap-2">
           <span
-            className={`w-2 h-2 rounded-full ${
+            className={`w-2 h-2 rounded-full text-sml ${
               params.value ? "bg-green-500" : "bg-red-500"
             }`}
           ></span>
-          <span>{params.value ? "Active" : "Inactive"}</span>
+          <span>{params.value ? "Active" : "In active"}</span>
         </div>
       ),
     },
 
     {
-      headerName: "Action",
-      width: 100,
-      cellRenderer: (params) => {
-        const user = params.data;
-        return (
-          <Menu as="div" className="relative inline-block text-left">
-            <Menu.Button className="p-2 hover:bg-gray-200 rounded">
-              <EllipsisVerticalIcon className="w-5 h-5 text-gray-600" />
-            </Menu.Button>
+  headerName: "Action",
+  width: 100,
+  cellRenderer: (params) => {
+    const user = params.data;
 
-            <Menu.Items className="absolute right-0 mt-2 w-28 bg-white border rounded shadow-lg z-50">
-              <Menu.Item>
-                {({ active }) => (
-                  <button
-                    onClick={() => handleEdit(user)}
-                    className={`${
-                      active ? "bg-gray-100" : ""
-                    } block w-full px-4 py-2 text-sm text-blue-600`}
-                  >
-                    Edit
-                  </button>
-                )}
-              </Menu.Item>
+    return (
+      <Menu as="div" className="relative inline-block text-left">
+        
+        {/* 3-dot button */}
+        <Menu.Button className="p-2 rounded hover:bg-gray-100">
+          <EllipsisVerticalIcon className="w-5 h-5 text-[#272757] text-sml" />
+        </Menu.Button>
 
-              <Menu.Item>
-                {({ active }) => (
-                  <button
-                    onClick={() => handleDelete(user.id)}
-                    className={`${
-                      active ? "bg-gray-100" : ""
-                    } block w-full px-4 py-2 text-sm text-red-600`}
-                  >
-                    Delete
-                  </button>
-                )}
-              </Menu.Item>
-            </Menu.Items>
-          </Menu>
-        );
-      },
-    },
+        {/* Dropdown */}
+        <Menu.Items className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+
+          {/* Edit */}
+          <Menu.Item>
+            {({ active }) => (
+              <button
+                onClick={() => handleEdit(user)}
+                className={`block w-full text-left px-4 py-2 text-sml text-[#272757] ${
+                  active ? "bg-gray-100" : ""
+                }`}
+              >
+                Edit
+              </button>
+            )}
+          </Menu.Item>
+
+          
+          <Menu.Item>
+            {({ active }) => (
+              <button
+                onClick={() => handleDelete(user)}
+                className={`block w-full text-left px-4 py-2 text-sml text-red-600 ${
+                  active ? "bg-gray-100" : ""
+                }`}
+              >
+                Delete
+              </button>
+            )}
+          </Menu.Item>
+
+        </Menu.Items>
+      </Menu>
+    );
+  },
+}
   ];
 
   return (
+    
     <div className="min-h-screen bg-gray-100">
+       {toast.show && (
+              <Toast
+                show={toast.show}
+                message={toast.message}
+                type={toast.type}
+             
+              />
+            )}
+      
       <Navbar />
       <div className="flex">
         <Sidebar />
 
         <div className="flex-1 p-6">
-          <h2 className="text-xl font-semibold text-[#272757] mt-20">
+          <h2 className="text-2xl font-semibold text-[#272757] mt-20">
             Manage Users
           </h2>
 
@@ -260,7 +362,7 @@ const ManageUsers = () => {
                 className={`relative pb-3 text-sml font-medium ${
                   activeUserTab === tab.id
                     ? "text-[#272757]"
-                    : "text-gray-500"
+                    : "text-[#686889]"
                 }`}
               >
                 {tab.label}

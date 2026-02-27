@@ -6,12 +6,13 @@ const CommonForm = ({
   title,
   fields = [],
   initialData = {},
+  
   onSubmit,
   onCancel,
   submitLabel="Create"
 
 }) => {
-  
+  console.log("aaas",initialData)
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({});
   console.log("55555",formData);
@@ -31,7 +32,7 @@ const CommonForm = ({
   fields.forEach((f) => {
     let value = initialData[f.name];
 
-    // ✅ Fix for date format
+   
     if (f.type === "date" && value) {
       if (value.includes("/")) {
         const [day, month, year] = value.split("/");
@@ -112,14 +113,17 @@ const CommonForm = ({
   return (
     <div className="w-full bg-[#F7F8FC] min-h-screen mb-5 -px-1 py-8">
       {/* HEADER */}
-      <div className="mb-6 pb-1">
-        {title && (
-          <h2 className="text-2xl font-semibold text-[#272757]">
-            {title}
-          </h2>
-        )}
-        <div className="border-b border-[#D5D5EC]  -pb-10 -mb-2"></div>
-      </div>
+     <div className="mb-6 pb-1">
+
+  <div className="border-b border-[#D5D5EC] mt-4 "></div>
+
+  {title && (
+    <h2 className="text-2xl font-semibold text-[#272757] mt-2">
+      {title}
+    </h2>
+  )}
+
+</div>
 
       {/* FORM */}
       <form
@@ -186,42 +190,41 @@ const CommonForm = ({
             )}
 
             {/* TOGGLE */}
-            {field.type === "toggle" && (
-              <div className="flex items-center gap-3 mt-2">
-                <div
-                  onClick={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      [field.name]:
-                        !prev[field.name],
-                    }))
-                  }
-                  className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition duration-300 ${
-                    formData[field.name]
-                      ? "bg-[#39AA16]"
-                      : "bg-gray-300"
-                  }`}
-                >
-                  <div
-                    className={`bg-white w-5 h-5 rounded-full shadow-md transform transition duration-300 ${
-                      formData[field.name]
-                        ? "translate-x-6"
-                        : "translate-x-0"
-                    }`}
-                  />
-                </div>
+{field.type === "toggle" && (
+  <div className="flex items-center gap-3 mt-2">
+    <div
+      onClick={() =>
+        setFormData((prev) => ({
+          ...prev,
+          [field.name]: !prev[field.name],
+        }))
+      }
+      className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition duration-300 ${
+        formData[field.name]
+          ? "bg-[#39AA16]"
+          : "bg-[#D2D5DA]"
+      }`}
+    >
+      <div
+        className={`bg-white w-5 h-5 rounded-full shadow-md transform transition duration-300 ${
+          formData[field.name]
+            ? "translate-x-5"
+            : "translate-x-0"
+        }`}
+      />
+    </div>
 
-                <span className="text-sm text-[#272757]">
-                  {formData[field.name]
-                    ? "Active"
-                    : "Inactive"}
-                </span>
-              </div>
-            )}
+    <span className="text-sml text-[#272757]">
+      {formData[field.name]
+        ? "Active"
+        : "Inactive"}
+    </span>
+  </div>
+)}
 
       {field.type === "file" && (
   <div
-    className={`bg-[#E9EAF5] border border-[#D5D5EC] rounded-md p-4 w-full ${
+    className={`bg-[#E9EAF5] border border-[#D5D5EC] rounded-md p-4 w-[420px] ${
       errors[field.name] ? "border-red-500" : ""
     }`}
   >

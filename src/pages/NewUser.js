@@ -11,7 +11,8 @@ const NewUser = () => {
   const location = useLocation();
   const editData = location.state?.editData;
   console.log("1111",editData);
-  
+
+  // const [users, setUsers] = useState([]);
 
   const [toast, setToast] = useState({
     show: false,
@@ -63,16 +64,18 @@ const NewUser = () => {
     },
     { name: "phone", label: "Phone", required: true },
     { name: "email", label: "Email", type: "email", required: true },
-    { name: "location", label: "Location" },
+    { name: "location", label: "Address" },
     { name: "status", label: "Status", type: "toggle" },
     {
       name: editData ? "image":"image",
-      label: "Profile Image",
+      label: "Image",
       type: "file",
       required: editData, 
       fullWidth: true,
     },
   ];
+
+  //CREATE API FORM 
   const handleCreateUser = async (formData) => {
     console.log("22222", formData);
     
@@ -109,7 +112,7 @@ const NewUser = () => {
 
     let response;
     
-//edit
+//EDIT
 if (editData) {
   console.log("EDIT DATA:", editData);
   const token = localStorage.getItem("token");
@@ -120,7 +123,7 @@ if (editData) {
 
    data.append("emp_id", editData?.emp_id);  
 
-    data.append("user_id", formData.userId);
+    // data.append("user_id", formData.userId);
     
 
     data.append("user_name", username);
@@ -164,10 +167,12 @@ if (editData) {
 }
  else {
   if (!formData.image) {
-    showToast("Profile image is required", "error");
+    // showToast("Profile image is required", "error");
     return;
   }
 
+
+// Create API
   response = await fetch(
     "http://127.0.0.1:8000/api/user-create",
     {
@@ -192,21 +197,27 @@ if (editData) {
     );
 
     setTimeout(() => {
-      navigate("/users");
+     navigate("/users")
     }, 1500);
 
   } catch (error) {
     showToast(error.message || "Server Error", "error");
   }
 };
-
+//Edit Image
 const formattedEditData = editData
   ? {
       ...editData,
       userId: editData.user_id || editData.id,
-      imagePreview: editData.image, // 👈 important
+      image: editData.image, 
     }
   : { status: true };
+
+  console.log("Image value:", editData?.image);
+
+
+ 
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
@@ -223,20 +234,20 @@ const formattedEditData = editData
       <div className="flex">
         <Sidebar />
 
-        <div className="flex-1 px-16 py-20">
+        <div className="flex-1 px-10 py-20">
           <div className="mb-6 flex items-center gap-4">
             <button
               onClick={() => navigate("/users")}
               className="p-2 rounded-full hover:bg-gray-200"
             >
-              <IoIosArrowDropleft />
+              <IoIosArrowDropleft className="size-5 mt-6  text-[#686889]"/>
             </button>
 
             <div>
-              <p className="text-sm text-gray-500">
+              <p className="text-[12] text-[#686889]">
                 Manage Users /
               </p>
-              <h2 className="text-2xl font-semibold text-[#272757]">
+              <h2 className="text-xl font-semibold text-[#272757]">
                 {editData ? "Edit User" : "New User"}
               </h2>
             </div>
@@ -246,6 +257,7 @@ const formattedEditData = editData
             fields={fields}
             initialData={formattedEditData}
             onSubmit={handleCreateUser}
+            // onClick={handleDelete}
             onCancel={() => navigate("/users")}
             submitLabel={editData ? "Update" : "Create"}
           />
