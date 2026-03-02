@@ -26,6 +26,7 @@ const CommonForm = ({
   //   });
   //   setFormData(data);
   // }, [initialData, fields]);
+  
   useEffect(() => {
   const data = {};
 
@@ -57,50 +58,106 @@ const CommonForm = ({
 //   setFormValues(initialData || {});
 // }, [initialData]);
  
- const handleChange = (e) => {
-  const { name, value, type, checked, files } = e.target;
+const handleChange = (e) => {
+  const { name, value, type, files } = e.target;
 
   if (type === "file") {
     const file = files[0];
 
     setFormData((prev) => ({
       ...prev,
-      [name]: file,
-      imagePreview: file
-        ? URL.createObjectURL(file)
-        : prev.imagePreview,
+      image: file,
+      previewImage: URL.createObjectURL(file),
     }));
   } else {
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
   }
 };
-  
-//validation
-  const validate = () => {
-    let temp = {};
 
-    fields.forEach((f) => {
-      if (f.required) {
-        if (
-          f.type === "file" &&
-          !formData[f.name]
-        ) {
+
+const validate = () => {
+  let temp = {};
+
+  fields.forEach((f) => {
+    const value = formData[f.name];
+
+    // REQUIRED VALIDATION
+    if (f.required) {
+      if (f.type === "file") {
+        if (!value) {
           temp[f.name] = `${f.label} is required`;
-        } else if (
-          f.type !== "file" &&
-          !formData[f.name]
-        ) {
+        }
+      } else if (f.type === "toggle") {
+        if (value === undefined || value === null) {
+          temp[f.name] = `${f.label} is required`;
+        }
+      } else {
+        if (!value || value.toString().trim() === "") {
           temp[f.name] = `${f.label} is required`;
         }
       }
-    });
+    }
 
-    setErrors(temp);
-    return Object.keys(temp).length === 0;
-  };
+    // PHONE NO
+    if (f.name === "phone" && value) {
+      const phoneRegex = /^[0-9]{10}$/;
+      if (!phoneRegex.test(value)) {
+        temp[f.name] = "Phone number must be 10 digits";
+      }
+    }
+
+    // EMAIL
+    if (f.type === "email" && value) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        temp[f.name] = "Enter a valid email address";
+      }
+    }
+
+    //IMAGE
+    if (f.type === "file" && value) {
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+
+      if (!allowedTypes.includes(value.type)) {
+        temp[f.name] = "Only JPG, JPEG, PNG files are allowed";
+      }
+
+      if (value.size > 1024 * 1024) {
+        temp[f.name] = "Image size must be less than 1MB";
+      }
+    }
+  });
+
+  setErrors(temp);
+  return Object.keys(temp).length === 0;
+};
+
+// //validation
+//   const validate = () => {
+//     let temp = {};
+
+//     fields.forEach((f) => {
+//       if (f.required) {
+//         if (
+//           f.type === "file" &&
+//           !formData[f.name]
+//         ) {
+//           temp[f.name] = `${f.label} is required`;
+//         } else if (
+//           f.type !== "file" &&
+//           !formData[f.name]
+//         ) {
+//           temp[f.name] = `${f.label} is required`;
+//         }
+//       }
+//     });
+
+//     setErrors(temp);
+//     return Object.keys(temp).length === 0;
+//   };
 
  //submit
   const handleSubmit = (e) => {
@@ -238,13 +295,13 @@ const CommonForm = ({
     )}
 
     {/* Preview from newly selected file */}
-    {formData.image && (
-      <img
-        src={URL.createObjectURL(formData.image)}
-        alt="Preview"
-        className="w-24 h-24 mb-3 rounded"
-      />
-    )}
+    {formData.previewImage && (
+  <img
+    src={formData.previewImage}
+    alt="Preview"
+    className="w-24 h-24 rounded-md object-cover mt-2"
+  />
+)}
 
     <p className="text-sm font-medium text-[#272757]">
       Add Profile Image
@@ -253,12 +310,7 @@ const CommonForm = ({
       Image size should be less than 1MB. Only jpg, jpeg, png allowed.
     </p>
 
-    <input
-      type="file"
-      name={field.name}
-      accept="image/*"
-      onChange={handleChange}
-    />
+    <input type="file" name="image" onChange={handleChange} />
   </div>
 )}
 

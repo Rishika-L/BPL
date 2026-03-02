@@ -36,9 +36,10 @@ const NewUser = () => {
     });
   };
 
+  
   const fields = [
     {
-      name: editData ? "id":"userId",
+      name: editData ? "user_id":"userId",
       label: "User ID",
       required: true,
       fullWidth: true,
@@ -59,11 +60,11 @@ const NewUser = () => {
       name: "gender",
       label: "Gender",
       type: "select",
-      options: ["Male", "Female" , "Others"],
+      options: ["male", "female" , "Others"],
       required: true,
     },
-    { name: "phone", label: "Phone", required: true },
-    { name: "email", label: "Email", type: "email", required: true },
+    { name: "phone", label: "Phone No", required: true },
+    { name: "email", label: "mail", type: "email", required: true },
     { name: "location", label: "Address" },
     { name: "status", label: "Status", type: "toggle" },
     {
@@ -115,16 +116,19 @@ const NewUser = () => {
 //EDIT
 if (editData) {
   console.log("EDIT DATA:", editData);
-  const token = localStorage.getItem("token");
+ 
+   const token = localStorage.getItem("token");
+  const username = `${formData.firstName} ${formData.lastName || ""}`;
   const type_id = "87076d07-c3cc-4c72-af9a-a9b069c680be";
-   const username = `${formData.firstName} ${formData.lastName || ""}`;
+   
 
   const data = new FormData();
 
-   data.append("emp_id", editData?.emp_id);  
-
-    // data.append("user_id", formData.userId);
+  //  data.append("emp_id", editData?.emp_id);  
+   data.append("emp_id", editData.id);  
     
+     data.append("user_id", formData.user_id);
+      
 
     data.append("user_name", username);
     data.append("first_name", formData.firstName);
@@ -132,6 +136,7 @@ if (editData) {
     data.append("dob", formData.dob);
     data.append("gender", formData.gender);
     data.append("user_type_id", type_id);
+   
     data.append("phone", formData.phone);
     data.append("email", formData.email);
     data.append("location", formData.location);  
@@ -140,6 +145,15 @@ if (editData) {
   if (formData.image) {
     data.append("user_image", formData.image);
   }
+
+  
+
+
+  
+ 
+ 
+  
+
 
   const response = await fetch(
     "http://127.0.0.1:8000/api/user-update",
@@ -209,11 +223,11 @@ const formattedEditData = editData
   ? {
       ...editData,
       userId: editData.user_id || editData.id,
-      image: editData.image, 
+       imagePreview: editData.Image,
     }
   : { status: true };
 
-  console.log("Image value:", editData?.image);
+  console.log("Image value:", editData?.Image);
 
 
  

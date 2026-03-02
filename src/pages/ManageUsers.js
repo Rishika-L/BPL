@@ -49,7 +49,7 @@ const showToast = (message, type = "success") => {
   }, 3000);
 };
 
-  // fetch API get all data
+  // fetch API get all data(list)
   const fetchUsers = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
@@ -313,7 +313,7 @@ const handleDelete = async (user) => {
             {({ active }) => (
               <button
                 onClick={() => handleDelete(user)}
-                className={`block w-full text-left px-4 py-2 text-sml text-red-600 ${
+                className={`block w-full text-left px-4 py-2 text-sml text-red-900 ${
                   active ? "bg-gray-100" : ""
                 }`}
               >

@@ -32,7 +32,7 @@ const TopBarActions = ({
 
     
       <div className="flex flex-wrap items-center gap-3">
-        
+         {/* Gender*/}
         <div className="flex flex-col">
   <label className="mb-1 text-[#686889] text-sml">
     Gender
@@ -49,7 +49,7 @@ const TopBarActions = ({
     <option value="Other">Other</option>
   </select>
 </div>
-
+ {/* Role Name */}
         <div className="flex flex-col">
   <label className="mb-1 text-[#686889] text-sml">
    Role Name
@@ -76,7 +76,7 @@ const TopBarActions = ({
   onChange={(e) => setStatus(e.target.value)}
   className="border border-[#D5D5EC] text-[#686889] rounded-full px-6 py-2 text-14px focus:outline-none focus:ring-2 focus:ring-[#272757]"
 >
-  <option value="ALL">Active</option>
+  <option value="ALL">ALL</option>
   <option value="1">Active</option>
   <option value="0">Inactive</option>
 </select>
