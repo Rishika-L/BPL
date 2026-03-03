@@ -9,8 +9,8 @@ const CommonForm = ({
   
   onSubmit,
   onCancel,
-  submitLabel="Create"
-
+  submitLabel="Create",
+   isView = false  
 }) => {
   console.log("aaas",initialData)
   const [errors, setErrors] = useState({});
@@ -168,7 +168,7 @@ const validate = () => {
   };
 
   return (
-    <div className="w-full bg-[#F7F8FC] min-h-screen mb-5 -px-1 py-8">
+    <div className="w-full bg-[#F7F8FC]  min-h-screen mb-5 -px-1 py-19">
       {/* HEADER */}
      <div className="mb-6 pb-1">
 
@@ -185,7 +185,7 @@ const validate = () => {
       {/* FORM */}
       <form
         onSubmit={handleSubmit}
-        className="max-w-4xl  grid grid-cols-2 gap-x-12 gap-y-6"
+        className="max-w-4xl mb-20 mr-7 grid grid-cols-2 gap-x-12 gap-y-6"
       >
         {fields.map((field) => (
           <div
@@ -213,7 +213,7 @@ const validate = () => {
                 name={field.name}
                 value={formData[field.name] || ""}
                 onChange={handleChange}
-                className={`w-full h-11 border rounded-md px-3 bg-white  border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
+                className={`w-full h-11 border rounded-md px-3 bg-white text-[#A9A9BC] border-[#D5D5EC] focus:ring-2 focus:ring-[#272757] focus:outline-none ${
                   errors[field.name]
                     ? "border-red-500"
                     : ""
@@ -281,7 +281,7 @@ const validate = () => {
 
       {field.type === "file" && (
   <div
-    className={`bg-[#E9EAF5] border border-[#D5D5EC] rounded-md p-4 w-[420px] ${
+    className={`bg-[#D5D5EC] border border-[#D5D5EC] rounded-md p-4 w-[420px] ${
       errors[field.name] ? "border-red-500" : ""
     }`}
   >
@@ -351,24 +351,24 @@ const validate = () => {
         ))}
 
        {/* BUTTONS */}
-<div className="col-span-2 flex gap-6 mt-8">
-  <button
-    type="submit"
-    // onClick={onSubmit}
-    className="bg-[#3F3D8F] text-white px-12 py-2 rounded-md hover:bg-[#2f2d6f] transition"
-  >
-     {submitLabel}
-    
-  </button>
+ {!isView && (
+      <div className="col-span-2 flex gap-6 mt-8">
+        <button
+          type="submit"
+          className="bg-[#3F3D8F] text-white px-12 py-2 rounded-md hover:bg-[#2f2d6f] transition"
+        >
+          {submitLabel}
+        </button>
 
-  <button
-    type="button"
-    onClick={onCancel}
-    className="border border-[#3F3D8F] text-[#3F3D8F] px-12 py-2 rounded-md hover:bg-[#F0F1FA] transition"
-  >
-    Cancel
-  </button>
-</div>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="border border-[#3F3D8F] text-[#3F3D8F] px-12 py-2 rounded-md hover:bg-[#F0F1FA] transition"
+        >
+          Cancel
+        </button>
+      </div>
+    )}
 </form>
        
     </div>

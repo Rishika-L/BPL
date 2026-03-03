@@ -49,7 +49,7 @@ const showToast = (message, type = "success") => {
   }, 3000);
 };
 
-  // fetch API get all data(list)
+  // fetch API get all data()
   const fetchUsers = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
@@ -216,12 +216,23 @@ const handleDelete = async (user) => {
           <div className="w-10 h-10 rounded-full bg-gray-300"></div>
         ),
     },
-    { headerName: "User ID", field: "user_id", width: 110,
-      cellRenderer: (params) => (
-    <span className="text-[#272757] text-sml ">
+   {
+  headerName: "User ID",
+  field: "user_id",
+  width: 130,
+  cellRenderer: (params) => (
+    <span
+      className="text-[#272757] cursor-pointer font-medium"
+      onClick={() =>
+        navigate("/users/view", {
+          state: { user: params.data }
+        })
+      }
+    >
       {params.value}
     </span>
-  ), },
+  ),
+},
     {
       headerName: "User Name",
       minWidth: 160,
@@ -232,32 +243,32 @@ const handleDelete = async (user) => {
       ),
     },
     { headerName: "Gender", field: "gender", width: 110,cellRenderer: (params) => (
-    <span className="text-[#272757] text-sml">
+    <span className="text-[#272757] text-sml font-medium">
       {params.value}
     </span>
   ), },
     { headerName: "Phone No.", field: "phone", width: 130 ,cellRenderer: (params) => (
-    <span className="text-[#272757] text-sml">
+    <span className="text-[#272757] text-sml font-medium">
       {params.value}
     </span>
   ),},
     { headerName: "Email", field: "email", flex: 1, minWidth: 220,cellRenderer: (params) => (
-    <span className="text-[#272757] text-sml">
+    <span className="text-[#272757] text-sml font-medium">
       {params.value}
     </span>
   ), },
     { headerName: "Group Name", field: "group", width: 150 ,cellRenderer: (params) => (
-    <span className="text-[#272757]">
+    <span className="text-[#272757] text-sml font-medium">
       {params.value}
     </span>
   ),},
     { headerName: "Role Name", field: "role", width: 150 ,cellRenderer: (params) => (
-    <span className="text-[#272757] text-sml">
+    <span className="text-[#272757] text-sml font-medium">
       {params.value}
     </span>
   ),},
     { headerName: "Created On", field: "createdOn", width: 130,cellRenderer: (params) => (
-    <span className="text-[#272757] text-sml">
+    <span className="text-[#272757] text-sml font-medium">
       {params.value}
     </span>
   ), },
@@ -268,7 +279,7 @@ const handleDelete = async (user) => {
       cellRenderer: (params) => (
         <div className="flex items-center text-[#272757] gap-2">
           <span
-            className={`w-2 h-2 rounded-full text-sml ${
+            className={`w-2 h-2 rounded-full text-sml font-medium ${
               params.value ? "bg-green-500" : "bg-red-500"
             }`}
           ></span>

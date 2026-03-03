@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { IoIosArrowDropleft } from "react-icons/io";
+import { SquareChevronLeft } from 'lucide-react';
+
+
 import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
 import CommonForm from "../component/CommonForm";
@@ -248,22 +250,22 @@ const formattedEditData = editData
       <div className="flex">
         <Sidebar />
 
-        <div className="flex-1 px-10 py-20">
-          <div className="mb-6 flex items-center gap-4">
+        <div className="flex-1 px-10 py-20 mr-10">
+          <div className="mb-6 mr-10 flex items-center gap-4">
             <button
               onClick={() => navigate("/users")}
-              className="p-2 rounded-full hover:bg-gray-200"
+              className=" p-2 rounded-full hover:bg-gray-900"
             >
-              <IoIosArrowDropleft className="size-5 mt-6  text-[#686889]"/>
+              <SquareChevronLeft className="size-5.5 mt-6  text-[#686889]"/>
             </button>
 
             <div>
-              <p className="text-[12] text-[#686889]">
+              <p className="text-[12] mr-15 text-[#686889]">
                 Manage Users /
               </p>
-              <h2 className="text-xl font-semibold text-[#272757]">
-                {editData ? "Edit User" : "New User"}
-              </h2>
+             <h2 className="text-2xl font-bold mr-10 text-[#272757]">
+  {editData ? "Edit User" : "New User"}
+</h2>
             </div>
           </div>
 

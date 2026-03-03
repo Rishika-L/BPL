@@ -9,66 +9,73 @@ import ManageProducts from "./pages/ManageProducts";
 import AddProduct from "./pages/AddProduct";
 
 
+import UserView from "./pages/UserView";
+
 function App() {
   const [users, setUsers] = useState(() => {
     try {
       const saved = localStorage.getItem("users");
       const parsed = saved ? JSON.parse(saved) : [];
       return Array.isArray(parsed)
-        ? parsed.filter(u => u && u.id)
+        ? parsed.filter((u) => u && u.id)
         : [];
     } catch {
       return [];
     }
   });
 
-  //LOCAL STORAGE 
+
   useEffect(() => {
-    const safeUsers = users.filter(u => u && u.id);
+    const safeUsers = users.filter((u) => u && u.id);
     localStorage.setItem("users", JSON.stringify(safeUsers));
   }, [users]);
 
   return (
     <BrowserRouter>
       <Routes>
+
         {/* LOGIN */}
         <Route path="/" element={<Login />} />
 
-        {/* USERS */}
+        {/* USERS LIST */}
         <Route
           path="/users"
           element={<ManageUsers users={users} setUsers={setUsers} />}
         />
 
+        {/* CREATE USER */}
         <Route
           path="/users/new"
           element={<NewUser setUsers={setUsers} />}
         />
 
+        {/* UPDATE USER */}
         <Route
           path="/users/update/:id"
           element={<UpdateUser users={users} setUsers={setUsers} />}
         />
+<Route
+  path="/users/view"
+  element={<UserView />}
+/>
 
-        
-        {/* Products */}
+        {/* PRODUCTS */}
         <Route
-          path="/manage-products" 
+          path="/manage-products"
           element={<ManageProducts />}
         />
 
-        
-        <Route path="/add-product" element={<AddProduct />} />
-         
-         
-        
+        <Route
+          path="/add-product"
+          element={<AddProduct />}
+        />
+
+        {/* DEFAULT */}
         <Route path="*" element={<Navigate to="/" />} />
+
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
-
-
-
