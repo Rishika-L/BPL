@@ -56,8 +56,8 @@ const NewUser = () => {
       fullWidth: true,
     },
     { name: "firstName", label: "First Name", required: true },
-    { name: "lastName", label: "Last Name" },
-    { name: "dob", label: "Date of Birth", type: "date" },
+    { name: "lastName", label: "Last Name",  required: true },
+    { name: "dob", label: "Date of Birth", type: "date", required: true },
     {
       name: "gender",
       label: "Gender",
@@ -67,13 +67,13 @@ const NewUser = () => {
     },
     { name: "phone", label: "Phone No", required: true },
     { name: "email", label: "mail", type: "email", required: true },
-    { name: "location", label: "Address" },
+    { name: "location", label: "Address", required: true },
     { name: "status", label: "Status", type: "toggle" },
     {
       name: editData ? "image":"image",
       label: "Image",
       type: "file",
-      required: editData, 
+      required: true, 
       fullWidth: true,
     },
   ];
@@ -138,7 +138,7 @@ if (editData) {
     data.append("dob", formData.dob);
     data.append("gender", formData.gender);
     data.append("user_type_id", type_id);
-   
+   data.append("group_name", formData.group);
     data.append("phone", formData.phone);
     data.append("email", formData.email);
     data.append("location", formData.location);  
@@ -150,14 +150,7 @@ if (editData) {
 
   
 
-
-  
- 
- 
-  
-
-
-  const response = await fetch(
+const response = await fetch(
     "http://127.0.0.1:8000/api/user-update",
     {
       method: "POST",
@@ -180,6 +173,7 @@ if (editData) {
   setTimeout(() => {
     navigate("/users");
   }, 1500);
+  return; 
 }
  else {
   if (!formData.image) {

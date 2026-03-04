@@ -62,7 +62,7 @@ const UserView = () => {
       name: "gender",
       type: "select",
       required: true,
-      options: ["male", "female","Others"],
+      options: ["Male", "Female","Others"],
     },
     {
       label: "Phone",
@@ -88,10 +88,6 @@ const UserView = () => {
   ];
 
 
-//   const handleSubmit = (data) => {
-//     console.log("Updated User Data:", data);
-//     navigate("/users");
-//   };
 
   return (
     <div className="min-h-screen bg-[#F5F6FA]">
@@ -100,7 +96,7 @@ const UserView = () => {
       <div className="flex">
         <Sidebar />
 
-       <div className="flex-1 px-12 py-8 mt-20">
+       <div className="flex-1 px-5 py-8 mt-10">
 
   <div className="flex items-center justify-between mb-5">
   
@@ -133,33 +129,34 @@ const UserView = () => {
     </button>
      
   </div>
-  <div className="bg-pink-100">
- <div className="mb-0">
-                {user.profileImage ? (
-                  <img
-                    src={user.profileImage}
-                    alt={`${user.firstName} ${user.lastName}`}
-                    className="w-20 h-20 rounded-full object-cover border-2 border-[#3F3F8D]"
-                  />
-                ) : (
-                  <div className="w-20 h-20 rounded-full bg-gray-300 border-2 border-[#3F3F8D]" />
-                )}
-              </div>
-</div>
+  
           
-          <div className="bg-white  ">
+        <div className="relative mb-30 px-2 ">
+  
+  <div className="absolute top-10 right-40">
+    {user.profileImage ? (
+      <img
+        src={user.profileImage}
+        alt={`${user.firstName} ${user.lastName}`}
+        className="w-35 h-30 rounded-full object-cover border-0 "
+      />
+    ) : (
+      <div className="w-30 h-30 rounded-full bg-gray-300 border-10 " />
+    )}
+  </div>
 
-            <CommonForm
-              title=""
-              fields={fields}
-              initialData={user}
-              isView={true}
-            //  onSubmit={handleSubmit}
-             onCancel={() => navigate("/users")}
-              submitLabel="Update"
-            />
-
-          </div>
+  {/* Form full width */}
+  <div className="mb-5"> 
+    <CommonForm
+      title=""
+      fields={fields}
+      initialData={user}
+      isView={true}
+      onCancel={() => navigate("/users")}
+      submitLabel="Update"
+    />
+  </div>
+</div>
         </div>
       </div>
     </div>

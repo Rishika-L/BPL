@@ -2,17 +2,20 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import Navbar from "../component/Navbar";
 import Sidebar from "../component/Sidebar";
-import ReusableTable from "../component/ReusableTable";
+
+import LeftSideTable from "../component/LeftSideTable";
 import AgTable from "../Components/Table/AgTable";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Menu } from "@headlessui/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 
-const FG_CODES = [
-  { code: "MECGGENX3" },
-  { code: "MECGGENX3S" },
-  { code: "MECGGENX12I+" },
-  { code: "MECGGENX12I" },
+
+// FG CODE LIST
+const fgCodes = [
+  { fgCode: "MECGGENX3" },
+  { fgCode: "MECGGENX3S" },
+  { fgCode: "MECGGENX12I+" },
+  { fgCode: "MECGGENX12I" },
 ];
 
 const ManageProducts = () => {
@@ -20,15 +23,19 @@ const ManageProducts = () => {
   const location = useLocation();
   const processedRef = useRef(false);
 
+//FG CODE 
+const [selectedFG, setSelectedFG] = useState(null);
+
   const [activePage, setActivePage] = useState(1);
   const [perPage, setPerPage] = useState(25);
   const [products, setProducts] = useState(() => {
     const saved = localStorage.getItem("products");
     return saved ? JSON.parse(saved) : [];
   });
+
   const [activeMainTab, setActiveMainTab] = useState("productMaster");
   const [activeSubTab, setActiveSubTab] = useState("products");
-  const [selectedFGCodes, setSelectedFGCodes] = useState([]);
+ 
   const [isOrganizing, setIsOrganizing] = useState(false);
 
   //  localStorage 
@@ -114,18 +121,15 @@ const ManageProducts = () => {
     },
     [products, navigate]
   );
+
+
 // Delete
   const handleDelete = useCallback(
     (id) => setProducts((prev) => prev.filter((p) => p.id !== id)),
     []
   );
 
-  // FG code
-  const toggleFGCode = (item) => {
-    setSelectedFGCodes((prev) =>
-      prev.includes(item) ? prev.filter((c) => c !== item) : [...prev, item]
-    );
-  };
+  
 // organize save
   const handleSave = () => {
     setIsOrganizing(false);
@@ -275,7 +279,7 @@ const ManageProducts = () => {
             Manage Products
           </h1>
 
-          <div className="flex gap-6 border-b mt-8">
+          <div className="flex gap-6 border-b border-[#D5D5EC] mt-6">
             {[
               { id: "productMaster", label: "Product Master" },
               { id: "products", label: "Products" },
@@ -288,7 +292,7 @@ const ManageProducts = () => {
                 className={`pb-2 ${
                   activeMainTab === tab.id
                     ? "border-b-2 border-[#272757] text-[#272757]"
-                    : "text-gray-500"
+                    : "text-[#686889]"
                 }`}
               >
                 {tab.label}
@@ -297,19 +301,16 @@ const ManageProducts = () => {
           </div>
 
           <div className="flex gap-6 mt-4">
-            <ReusableTable
-              title="FG Code List"
-              columns={[{ key: "code", label: "FG Code" }]}
-              data={FG_CODES}
-              selectable
-              selectedItems={selectedFGCodes}
-              onSelect={toggleFGCode}
-              width="w-72"
-            />
+            <LeftSideTable
+  title="FG Code List"
+  data={fgCodes}
+  selectedItem={selectedFG}
+  onSelect={setSelectedFG}
+/>
 
-            <div className="flex-1 bg-white rounded p-6 shadow">
+            <div className="flex-1  rounded p-6 ">
               <div className="flex justify-between items-center mb-4">
-                <div className="flex gap-6 border-b items-center">
+                <div className="flex gap-10 border-b items-center">
                   <button
                     onClick={() => setActiveSubTab("products")}
                     className={`pb-2 ${
@@ -332,7 +333,7 @@ const ManageProducts = () => {
                   </button>
                   <button
                     onClick={() => setIsOrganizing(!isOrganizing)}
-                    className={`pb-2 ${
+                    className={`pb-2 p-3 bg-[#D5D5EC] border border-[#000000] rounded ${
                       isOrganizing ? "border-b-2 border-black" : "text-gray-500"
                     }`}
                   >
@@ -358,15 +359,15 @@ const ManageProducts = () => {
                 </div>
 
                 <div className="flex gap-3">
-                  <button className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm">
+                  <button className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sml">
                     Download Excel
                   </button>
-                  <button className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm">
+                  <button className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sml">
                     Upload
                   </button>
                   <button
                     onClick={() => navigate("/add-product")}
-                    className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sm"
+                    className="bg-[#3f3d8f] text-white px-4 py-2 rounded text-sml"
                   >
                     Add Product
                   </button>
